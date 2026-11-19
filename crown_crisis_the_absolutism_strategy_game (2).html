@@ -1,0 +1,3377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crown &amp; Crisis: The Absolutism Strategy Game</title>
+
+  <!-- Google Fonts: Cinzel (Royal Display), Crimson Pro (Historical Serif), Inter (Clean UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- jsPDF for Official Royal Decree PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Tone.js for Synthesized Royal Sound Effects (No External Audio URLs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Cinzel', 'Georgia', 'serif'],
+            serif: ['Crimson Pro', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            royal: {
+              navy: '#0f172a',
+              deep: '#090d16',
+              crimson: '#7f1d1d',
+              velvet: '#991b1b',
+              purple: '#3b0764',
+              emerald: '#065f46',
+              parchment: '#fdf6e3',
+              parchmentDark: '#f3e5c0',
+              gold: '#d4af37',
+              goldBright: '#f59e0b',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* =====================================================================
+       BAROQUE & ROYAL COURT CUSTOM STYLES & ANIMATIONS
+       ===================================================================== */
+    :root {
+      --gold-primary: #d4af37;
+      --gold-light: #fde68a;
+      --gold-dark: #92400e;
+      --royal-navy: #0f172a;
+      --crimson-velvet: #7f1d1d;
+      --imperial-purple: #3b0764;
+      --parchment: #fdf6e3;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 15% 15%, rgba(127, 29, 29, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(59, 7, 100, 0.45) 0%, transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(212, 175, 55, 0.14) 0%, transparent 55%),
+        linear-gradient(160deg, #070b14 0%, #0f172a 48%, #160c24 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Subtle Floating Gold Dust Particles */
+    .gold-particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, #fde68a 0%, #d4af37 60%, transparent 100%);
+      opacity: 0.45;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(105vh) scale(0.6);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.55;
+      }
+      80% {
+        opacity: 0.45;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* Gilded Baroque Frame Styling */
+    .gilded-card {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(26, 16, 46, 0.94));
+      border: 1.5px solid rgba(212, 175, 55, 0.48);
+      box-shadow:
+        0 12px 32px -6px rgba(0, 0, 0, 0.75),
+        inset 0 1px 0 rgba(253, 230, 138, 0.25);
+    }
+
+    .gilded-card-hover {
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .gilded-card-hover:hover {
+      transform: translateY(-4px);
+      border-color: #f59e0b;
+      box-shadow:
+        0 20px 38px -8px rgba(0, 0, 0, 0.85),
+        0 0 22px rgba(212, 175, 55, 0.28),
+        inset 0 1px 0 rgba(253, 230, 138, 0.45);
+    }
+
+    /* Parchment Scroll Panel */
+    .parchment-panel {
+      background:
+        radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), transparent 45%),
+        radial-gradient(circle at bottom right, rgba(127, 29, 29, 0.1), transparent 45%),
+        linear-gradient(180deg, #fdf6e3 0%, #f7ebd0 100%);
+      color: #1e1b18;
+      border: 2px solid #b45309;
+      box-shadow:
+        0 14px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 24px rgba(180, 83, 9, 0.15);
+    }
+
+    /* Gleaming Gold Button */
+    .btn-royal-gold {
+      background: linear-gradient(135deg, #b45309 0%, #d4af37 45%, #f59e0b 55%, #92400e 100%);
+      background-size: 200% auto;
+      color: #0f172a;
+      font-weight: 800;
+      border: 1px solid #fde68a;
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+      transition: all 0.25s ease;
+    }
+
+    .btn-royal-gold:hover {
+      background-position: right center;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .btn-royal-gold:active {
+      transform: translateY(0);
+    }
+
+    /* Crown Animations */
+    .crown-active {
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.65));
+      transition: all 0.4s ease;
+    }
+
+    .crown-lost {
+      filter: grayscale(100%) brightness(0.45);
+      opacity: 0.48;
+      transform: scale(0.88) rotate(-8deg);
+      transition: all 0.5s ease;
+    }
+
+    @keyframes crownShatter {
+      0% { transform: scale(1); filter: drop-shadow(0 0 16px #ef4444); }
+      25% { transform: scale(1.25) rotate(12deg); filter: drop-shadow(0 0 24px #dc2626); }
+      50% { transform: scale(0.95) rotate(-14deg); }
+      75% { transform: scale(1.05) rotate(8deg); }
+      100% { transform: scale(0.88) rotate(-8deg); filter: grayscale(100%) brightness(0.45); opacity: 0.48; }
+    }
+
+    .animate-crown-shatter {
+      animation: crownShatter 0.85s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+    }
+
+    /* Pulsing Danger Meter */
+    @keyframes dangerPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+      50% { box-shadow: 0 0 16px 4px rgba(239, 68, 68, 0.75); }
+    }
+
+    .meter-critical {
+      animation: dangerPulse 1.4s infinite;
+      border-color: #ef4444 !important;
+    }
+
+    /* Smooth Fade-In Transition */
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fadeSlideIn 0.42s ease-out forwards;
+    }
+
+    /* Interactive ESL Historical Glossary Term Styling */
+    .gloss-word {
+      display: inline;
+      color: #fde68a;
+      border-bottom: 2px dotted #f59e0b;
+      font-weight: 600;
+      cursor: help;
+      padding: 0 1px;
+      border-radius: 3px;
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .gloss-word:hover {
+      background-color: rgba(245, 158, 11, 0.22);
+      color: #fef3c7;
+    }
+
+    .parchment-panel .gloss-word {
+      color: #92400e;
+      border-bottom: 2px dotted #b45309;
+    }
+
+    .parchment-panel .gloss-word:hover {
+      background-color: rgba(180, 83, 9, 0.15);
+      color: #78350f;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #78350f;
+      border-radius: 9999px;
+      border: 1px solid #d4af37;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Ambient Floating Gold Dust Particles -->
+  <div id="particleContainer" class="gold-particles" aria-hidden="true"></div>
+
+  <!-- Top Utility / Audio Bar -->
+  <header class="relative z-20 border-b border-amber-500/30 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-amber-700 text-slate-950 shadow">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2 19h20v2H2v-2zm1.5-2L2 7l5.5 4L12 4l4.5 7L22 7l-1.5 10h-17z"/>
+          </svg>
+        </span>
+        <div>
+          <span class="font-display font-bold text-amber-300 tracking-wider text-sm sm:text-base">CROWN &amp; CRISIS</span>
+          <span class="hidden sm:inline text-xs text-slate-400 ml-2 border-l border-slate-700 pl-2">World History Interactive Simulation</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="btnOpenAcademyNav" type="button" onclick="openAcademyScreen()"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-purple-950/90 hover:bg-purple-900 text-purple-200 border border-purple-400/40 transition flex items-center gap-1.5">
+          <span>🎓</span>
+          <span class="hidden sm:inline">Royal Academy</span>
+        </button>
+        <button id="btnGlossaryIndex" type="button" onclick="toggleGlossaryIndexModal(true)"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-400/40 transition flex items-center gap-1.5">
+          <span>📖</span>
+          <span>Word Glossary</span>
+        </button>
+        <button id="btnRulesModal" type="button" onclick="toggleRulesModal(true)"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-amber-200 border border-amber-500/30 transition">
+          Royal Rules
+        </button>
+        <button id="btnSoundToggle" type="button" onclick="toggleSound()"
+          class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-600/60 transition flex items-center gap-1.5"
+          title="Toggle Royal Court Sound Effects">
+          <span id="soundIcon">🔊</span>
+          <span id="soundLabel" class="hidden sm:inline">Sound On</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Application Container -->
+  <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ===================================================================
+         SCREEN 0: ROYAL ACADEMY (PRE-GAME STUDY & MATCHING HALL)
+         =================================================================== -->
+    <section id="academyScreen" class="animate-fade-in space-y-8">
+      <!-- Academy Welcome & Student Name Registration -->
+      <div class="gilded-card rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden">
+        <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-purple-500/20 border border-purple-400/45 text-purple-200 text-xs font-bold uppercase tracking-widest mb-3">
+          <span>🎓 Step 1: The Royal Academy • Study &amp; Matching Hall</span>
+        </div>
+
+        <h1 class="font-display text-3xl sm:text-5xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-300">
+          CROWN &amp; CRISIS
+        </h1>
+        <p class="font-serif text-lg sm:text-xl text-slate-200 max-w-3xl mx-auto mt-3 leading-relaxed">
+          Before ascending the throne, study the four <strong class="text-amber-300">Absolute Monarchs</strong> and five <strong class="text-purple-300">Enlightenment Thinkers</strong> below. Click any <span class="gloss-word" onclick="openGlossaryTerm('absolutism')">dotted gold word</span> for a clear definition, then complete both matching challenges to unlock the game!
+        </p>
+
+        <!-- Student Name Registration (Synced with Throne Room) -->
+        <div class="mt-6 max-w-2xl mx-auto bg-slate-950/80 border border-amber-500/40 rounded-xl p-4 sm:p-5 text-left">
+          <div class="text-xs font-display font-bold uppercase tracking-wider text-amber-300 mb-3">
+            📜 Royal Scribe Registration (Enter Your First &amp; Last Name)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label for="academyFirstName" class="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1">
+                Student First Name *
+              </label>
+              <input id="academyFirstName" type="text" oninput="syncStudentNames('academy')" placeholder="e.g., Eleanor" autocomplete="given-name"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-amber-500/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+            </div>
+            <div>
+              <label for="academyLastName" class="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1">
+                Student Last Name *
+              </label>
+              <input id="academyLastName" type="text" oninput="syncStudentNames('academy')" placeholder="e.g., Vance" autocomplete="family-name"
+                class="w-full px-3.5 py-2.5 rounded-lg bg-slate-900 border border-amber-500/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PART I: STUDY THE FOUR ABSOLUTE MONARCHS -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 px-1">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Part I • Primary Source Gallery</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">
+              The Four European Absolute Monarchs
+            </h2>
+            <p class="font-serif text-base sm:text-lg text-slate-300">
+              Study each ruler's primary source portrait, region, main ruling problems, and royal quote.
+            </p>
+          </div>
+        </div>
+
+        <div id="academyMonarchStudyGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Populated dynamically by renderAcademyStudySections() -->
+        </div>
+      </div>
+
+      <!-- PART II: STUDY THE FIVE ENLIGHTENMENT THINKERS -->
+      <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 px-1">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-purple-300">Part II • Age of Reason Gallery</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white">
+              Enlightenment Thinkers &amp; Revolutionary Ideas
+            </h2>
+            <p class="font-serif text-base sm:text-lg text-slate-300">
+              Examine the philosophers whose writings either defended royal power or inspired citizens to challenge absolute monarchy.
+            </p>
+          </div>
+        </div>
+
+        <div id="academyThinkerStudyGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Populated dynamically by renderAcademyStudySections() -->
+        </div>
+      </div>
+
+      <!-- PART III: INTERACTIVE MATCHING CHALLENGE 1 — ABSOLUTE MONARCHS -->
+      <div class="gilded-card rounded-2xl p-5 sm:p-7 space-y-5">
+        <div class="border-b border-amber-500/30 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Challenge 1 of 2</span>
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-white">
+              Match Each Absolute Monarch with Portrait, Region &amp; Ruling Problem
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              <strong>How to Match:</strong> Click an item in any bank below to highlight it, then click the matching dashed slot on the monarch's card. Click a filled slot to remove it.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="resetMonarchMatches()"
+              class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition cursor-pointer">
+              ↺ Reset
+            </button>
+            <button type="button" onclick="verifyMonarchMatches()"
+              class="px-4 py-2 rounded-lg btn-royal-gold font-display text-xs uppercase tracking-wider cursor-pointer">
+              ✓ Check Monarch Matches
+            </button>
+          </div>
+        </div>
+
+        <!-- Tile Banks: Portraits, Regions, Ruling Problems -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-950/75 p-4 rounded-xl border border-amber-500/25">
+          <div class="lg:col-span-4 space-y-2">
+            <div class="text-xs font-display font-bold uppercase tracking-wider text-amber-300">1. Portrait Bank</div>
+            <div id="bankMonarchPortraits" class="grid grid-cols-2 gap-2"></div>
+          </div>
+          <div class="lg:col-span-4 space-y-2">
+            <div class="text-xs font-display font-bold uppercase tracking-wider text-emerald-300">2. Region Bank</div>
+            <div id="bankMonarchRegions" class="space-y-2"></div>
+          </div>
+          <div class="lg:col-span-4 space-y-2">
+            <div class="text-xs font-display font-bold uppercase tracking-wider text-rose-300">3. Main Ruling Problem Bank</div>
+            <div id="bankMonarchProblems" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Feedback Banner -->
+        <div id="monarchMatchFeedback" class="hidden"></div>
+
+        <!-- 4 Monarch Target Cards -->
+        <div id="targetMonarchCards" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- PART IV: INTERACTIVE MATCHING CHALLENGE 2 — ENLIGHTENMENT THINKERS -->
+      <div class="gilded-card rounded-2xl p-5 sm:p-7 space-y-5">
+        <div class="border-b border-purple-500/30 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-purple-300">Challenge 2 of 2</span>
+            <h3 class="font-display text-xl sm:text-2xl font-bold text-white">
+              Match Each Enlightenment Thinker with Portrait &amp; Key Idea / Quote
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1">
+              <strong>How to Match:</strong> Click a portrait or key idea/quote in the bank below, then click the matching slot on that philosopher's card.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="resetThinkerMatches()"
+              class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 transition cursor-pointer">
+              ↺ Reset
+            </button>
+            <button type="button" onclick="verifyThinkerMatches()"
+              class="px-4 py-2 rounded-lg btn-royal-gold font-display text-xs uppercase tracking-wider cursor-pointer">
+              ✓ Check Thinker Matches
+            </button>
+          </div>
+        </div>
+
+        <!-- Tile Banks: Thinker Portraits & Key Ideas/Quotes -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-slate-950/75 p-4 rounded-xl border border-purple-500/25">
+          <div class="lg:col-span-5 space-y-2">
+            <div class="text-xs font-display font-bold uppercase tracking-wider text-amber-300">1. Philosopher Portrait Bank</div>
+            <div id="bankThinkerPortraits" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+          </div>
+          <div class="lg:col-span-7 space-y-2">
+            <div class="text-xs font-display font-bold uppercase tracking-wider text-purple-300">2. Key Ideas &amp; Quotes Bank</div>
+            <div id="bankThinkerIdeas" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Feedback Banner -->
+        <div id="thinkerMatchFeedback" class="hidden"></div>
+
+        <!-- 5 Thinker Target Cards -->
+        <div id="targetThinkerCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- ACADEMY COMPLETION & UNLOCK FOOTER -->
+      <div class="gilded-card rounded-2xl p-6 sm:p-8 text-center space-y-4">
+        <div id="academyUnlockBadge" class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 border border-amber-500/40 text-amber-300 text-xs font-bold uppercase tracking-wider">
+          🔒 Complete Both Matching Challenges Above to Enter the Game
+        </div>
+
+        <h3 id="academyUnlockTitle" class="font-display text-2xl sm:text-3xl font-bold text-white">
+          Royal Academy Readiness Check
+        </h3>
+        <p id="academyUnlockDesc" class="font-serif text-base sm:text-lg text-slate-300 max-w-2xl mx-auto">
+          Verify all 4 Absolute Monarchs and all 5 Enlightenment Thinkers above to unlock the Throne Room simulation.
+        </p>
+
+        <div class="flex flex-wrap items-center justify-center gap-3 text-xs">
+          <span id="pillMonarchMatchStatus" class="px-3.5 py-1.5 rounded-full bg-slate-900 border border-amber-500/40 text-amber-200 font-semibold">
+            1. Monarchs Match: 0 / 4 Verified
+          </span>
+          <span id="pillThinkerMatchStatus" class="px-3.5 py-1.5 rounded-full bg-slate-900 border border-purple-500/40 text-purple-200 font-semibold">
+            2. Enlightenment Match: 0 / 5 Verified
+          </span>
+        </div>
+
+        <div class="pt-2">
+          <button id="btnEnterThroneRoom" type="button" disabled onclick="completeAcademyAndProceed()"
+            class="px-8 py-4 rounded-xl font-display text-base sm:text-lg uppercase tracking-wider transition opacity-45 cursor-not-allowed bg-slate-800 text-slate-400 border border-slate-600">
+            🔒 Complete Matching Challenges to Enter Game →
+          </button>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===================================================================
+         SCREEN 1: TITLE, STUDENT REGISTRATION & MONARCH SELECTION
+         =================================================================== -->
+    <section id="setupScreen" class="hidden animate-fade-in space-y-8">
+      <!-- Grand Baroque Banner -->
+      <div class="gilded-card rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-15 pointer-events-none"
+          style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 20px 20px;"></div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 mb-3">
+          <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-amber-500/15 border border-amber-400/40 text-amber-300 text-xs font-bold uppercase tracking-widest">
+            <span>Age of Absolutism • 1223–1789</span>
+          </div>
+          <button type="button" onclick="openAcademyScreen()"
+            class="px-3 py-1 rounded-full bg-purple-950/90 hover:bg-purple-900 border border-purple-400/40 text-purple-200 text-xs font-semibold transition cursor-pointer">
+            ← Review Royal Academy Study Hall
+          </button>
+        </div>
+
+        <!-- Campaign Progress Strip inside End Screen -->
+        <div class="mt-6 max-w-3xl mx-auto bg-slate-950/85 border border-amber-500/35 rounded-xl p-4 text-left">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <span class="font-display text-xs font-bold uppercase tracking-wider text-amber-300">
+              4-Monarch Campaign Status (Play All 4 &amp; Win at Least 3)
+            </span>
+            <span id="endCampaignCounter" class="text-xs font-semibold text-slate-300">1 of 4 Played • 1 Won</span>
+          </div>
+          <div id="endCampaignGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Live On-Screen Royal Decree Parchment Preview (Unlocked at 3/4 Monarch Victories) -->
+      <div id="decreePreviewWrapper" class="hidden parchment-panel rounded-2xl p-6 sm:p-9 max-w-4xl mx-auto text-center">
+        <div class="border-4 border-double border-amber-800/80 rounded-xl p-5 sm:p-8 space-y-3">
+          <div class="flex justify-center">
+            <svg class="w-14 h-10" viewBox="0 0 64 48" fill="none" aria-hidden="true">
+              <path d="M8 36L13 14L25 23L32 8L39 23L51 14L56 36H8Z" fill="#d4af37" stroke="#78350f" stroke-width="2"/>
+              <rect x="8" y="38" width="48" height="5" rx="2" fill="#92400e"/>
+              <circle cx="32" cy="26" r="3" fill="#991b1b"/>
+            </svg>
+          </div>
+          <p class="font-display text-xs sm:text-sm font-bold tracking-[0.2em] text-red-900 uppercase">
+            By the Grace of God • Royal Decree of the Sovereign
+          </p>
+          <p class="font-serif italic text-base text-stone-700">
+            Be it known across all provinces, royal courts, and dominions that
+          </p>
+          <h3 id="decreeStudentName" class="font-display text-2xl sm:text-4xl font-black text-red-950">
+            Student Name
+          </h3>
+          <p class="font-serif text-base text-stone-800">
+            ruling in the imperial majesty and sovereign authority of
+          </p>
+          <p id="decreeMonarchTitle" class="font-display text-base sm:text-xl font-extrabold text-amber-900">
+            Master Sovereign of Europe
+          </p>
+          <blockquote class="max-w-2xl mx-auto py-3 px-4 bg-amber-900/10 border-y border-amber-800/35 font-serif italic font-bold text-lg sm:text-xl text-stone-900">
+            “Congratulations, O King! You have successfully balanced your kingdoms and held power. May you rule for a thousand generations!”
+          </blockquote>
+          <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm text-stone-800 max-w-2xl mx-auto">
+            <span><strong>Date:</strong> <span id="decreeDateText">November 18, 2026</span></span>
+            <span id="decreeAttestationText" class="font-bold text-red-900">3 of 4 European Monarchs Conquered</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="studentFirstName" class="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
+                Student First Name *
+              </label>
+              <input id="studentFirstName" type="text" oninput="syncStudentNames('setup')" placeholder="e.g., Eleanor" autocomplete="given-name"
+                class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-amber-500/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition" />
+            </div>
+            <div>
+              <label for="studentLastName" class="block text-xs font-semibold uppercase tracking-wider text-amber-200/90 mb-1.5">
+                Student Last Name *
+              </label>
+              <input id="studentLastName" type="text" oninput="syncStudentNames('setup')" placeholder="e.g., Vance" autocomplete="family-name"
+                class="w-full px-4 py-2.5 rounded-lg bg-slate-900 border border-amber-500/40 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition" />
+            </div>
+          </div>
+
+          <div id="debriefMonarchComparison" class="font-serif text-base sm:text-lg text-slate-200 leading-relaxed space-y-3">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Student Decision Log Summary -->
+          <div class="pt-3 border-t border-slate-800">
+            <h4 class="font-display text-xs font-bold uppercase tracking-wider text-amber-300 mb-2.5">
+              Chronicle of Your Key Royal Decisions
+            </h4>
+            <div id="debriefDecisionLog" class="max-h-60 overflow-y-auto space-y-2 pr-1 text-xs sm:text-sm">
+              <!-- Logged turns injected here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- The 4 Pillars of European Absolutism Review (5 cols) -->
+        <div class="lg:col-span-5 gilded-card rounded-2xl p-6 sm:p-7 space-y-4">
+          <div class="flex items-center gap-2.5 border-b border-amber-500/30 pb-3">
+            <span class="text-2xl">📚</span>
+            <div>
+              <h3 class="font-display text-xl font-bold text-amber-300">
+                Four Pillars of Absolutism
+              </h3>
+              <p class="text-xs text-slate-400">Core World History Unit Concepts</p>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-sm">
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/25">
+              <div class="font-display font-bold text-amber-300 text-xs uppercase tracking-wider">1. Centralization of Power</div>
+              <p class="font-serif text-base text-slate-300 mt-1">
+                Absolute monarchs replaced fragmented feudal lords with royal bureaucrats (like French <em>intendants</em>), professional standing armies, and uniform tax systems.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-purple-500/25">
+              <div class="font-display font-bold text-purple-300 text-xs uppercase tracking-wider">2. The Divine Right of Kings</div>
+              <p class="font-serif text-base text-slate-300 mt-1">
+                Thinkers like Bishop Bossuet argued monarchs answered solely to God—making political rebellion both a treasonous crime and a mortal sin.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/25">
+              <div class="font-display font-bold text-emerald-300 text-xs uppercase tracking-wider">3. Cultural &amp; Economic Control</div>
+              <p class="font-serif text-base text-slate-300 mt-1">
+                Monumental palaces (Versailles, El Escorial, St. Petersburg), state art academies, and mercantilist tariffs projected prestige and bound elites to the throne.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-900/90 border border-rose-500/25">
+              <div class="font-display font-bold text-rose-300 text-xs uppercase tracking-wider">4. Catalyst for Revolution</div>
+              <p class="font-serif text-base text-slate-300 mt-1">
+                Unchecked royal taxation, religious intolerance, and costly wars provoked Enlightenment philosophers (Locke, Voltaire, Rousseau) and democratic revolutions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       ROYAL CHARTER & RULES MODAL
+       ===================================================================== -->
+  <div id="rulesModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="gilded-card rounded-2xl max-w-2xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
+        <h3 class="font-display text-xl sm:text-2xl font-bold text-amber-300">
+          Royal Rules &amp; How to Win
+        </h3>
+        <button type="button" onclick="toggleRulesModal(false)" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
+      </div>
+
+      <div class="font-serif text-base sm:text-lg text-slate-200 space-y-3 leading-relaxed">
+        <p>
+          <strong class="text-amber-300">Campaign Goal:</strong> You must play all <strong>4 European Monarchs</strong> (<em>Louis XIV, Peter the Great, Philip II,</em> and <em>Louis VIII</em>) and win <strong>at least 3 out of 4 reigns</strong> to unlock your official <strong>Royal Decree PDF</strong>.
+        </p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>
+            <strong class="text-amber-300">How to Win a Monarch's 12-Turn Reign:</strong> You must reach the end of Turn 12 with <strong>at least 3 of your 5 Crowns</strong> remaining AND <strong>all three meters (Treasury, Stability, Divine Legitimacy) at 35 or higher</strong>.
+          </li>
+          <li>
+            <strong class="text-red-300">How Crowns Are Lost:</strong>
+            <ul class="list-circle pl-5 mt-1 text-base text-slate-300 space-y-1">
+              <li>If <strong>any meter drops below 30</strong> at the end of a turn, you lose <strong>1 Crown</strong>.</li>
+              <li>If <strong>any meter hits 0</strong>, you lose <strong>2 Crowns</strong> right away (and that meter resets to 15).</li>
+              <li>If <strong>two or more meters</strong> are below 35 at the same time, kingdom-wide crisis costs an extra <strong>1 Crown</strong>.</li>
+            </ul>
+          </li>
+          <li>
+            <strong class="text-purple-300">Read Carefully &amp; Use the Word Glossary:</strong> Policies do not reveal their exact numbers before you choose! Click any <span class="gloss-word" onclick="openGlossaryTerm('mercantilism')">dotted gold historical word</span> to see a clear definition.
+          </li>
+        </ul>
+      </div>
+
+      <div class="pt-3 text-right">
+        <button type="button" onclick="toggleRulesModal(false)" class="px-5 py-2.5 rounded-xl btn-royal-gold font-display text-sm uppercase tracking-wider">
+          Return to Court
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       SINGLE HISTORICAL WORD GLOSSARY POPOVER MODAL (ESL SUPPORT)
+       ===================================================================== -->
+  <div id="glossaryTermModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) closeGlossaryTerm()">
+    <div class="parchment-panel rounded-2xl max-w-lg w-full p-6 space-y-4 border-2 border-amber-700 shadow-2xl">
+      <div class="flex items-start justify-between gap-3 border-b border-amber-800/30 pb-2.5">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-red-900">📖 Historical Vocabulary Definition</span>
+          <h3 id="glossModalWord" class="font-display text-2xl font-black text-stone-950 mt-0.5">Mercantilism</h3>
+        </div>
+        <button type="button" onclick="closeGlossaryTerm()" class="text-stone-600 hover:text-stone-950 text-xl font-bold px-2">✕</button>
+      </div>
+
+      <div class="space-y-2.5">
+        <p id="glossModalDef" class="font-serif text-lg text-stone-900 leading-relaxed">
+          Clear ESL-friendly definition...
+        </p>
+        <div class="p-3 rounded-xl bg-amber-900/10 border border-amber-800/25 text-sm text-stone-800">
+          <strong class="text-red-950">Historical Example:</strong>
+          <span id="glossModalExample">Example sentence...</span>
+        </div>
+      </div>
+
+      <div class="pt-2 flex items-center justify-between gap-2">
+        <button type="button" onclick="closeGlossaryTerm(); toggleGlossaryIndexModal(true);"
+          class="text-xs font-bold text-red-900 hover:underline">
+          View All Historical Words →
+        </button>
+        <button type="button" onclick="closeGlossaryTerm()"
+          class="px-4 py-2 rounded-lg bg-stone-900 text-amber-200 font-display text-xs font-bold uppercase tracking-wider hover:bg-stone-800">
+          Got It
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       FULL HISTORICAL GLOSSARY INDEX MODAL (ALL ESL VOCABULARY WORDS)
+       ===================================================================== -->
+  <div id="glossaryIndexModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="if(event.target===this) toggleGlossaryIndexModal(false)">
+    <div class="gilded-card rounded-2xl max-w-3xl w-full p-6 sm:p-8 max-h-[88vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between border-b border-amber-500/30 pb-3">
+        <div>
+          <h3 class="font-display text-xl sm:text-2xl font-bold text-amber-300">
+            📖 Royal Historical Word Glossary
+          </h3>
+          <p class="text-xs text-slate-300 mt-0.5">Clear definitions of key World History terms used in this game</p>
+        </div>
+        <button type="button" onclick="toggleGlossaryIndexModal(false)" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
+      </div>
+
+      <div id="glossaryIndexList" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <!-- Populated dynamically from GLOSSARY -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================================
+       JAVASCRIPT: ESL GLOSSARY, DATA, SVG ARTWORK, ENGINE & PDF GENERATOR
+       ===================================================================== -->
+  <script>
+    /* ---------------------------------------------------------------------
+       0. ESL HISTORICAL GLOSSARY DICTIONARY & CLICK-TO-GLOSS PARSER
+       --------------------------------------------------------------------- */
+    const GLOSSARY = {
+      absolutism: {
+        term: 'Absolutism (Absolute Monarchy)',
+        definition: 'A system of government in which a king or queen holds complete, unlimited power over the laws, taxes, army, and people without sharing authority with a parliament.',
+        example: 'Louis XIV practiced absolutism in France by making all major government decisions himself.'
+      },
+      'divine right': {
+        term: 'Divine Right of Kings',
+        definition: 'The belief that a monarch’s right to rule comes directly from God, not from the people. Challenging the king was seen as a sin against God.',
+        example: 'Bishop Bossuet taught that kings answered only to God under the Divine Right of Kings.'
+      },
+      centralization: {
+        term: 'Centralization',
+        definition: 'Bringing all political power, tax collection, and lawmaking under one central royal government instead of letting local lords rule their own areas.',
+        example: 'Centralization helped kings replace weak feudal lands with strong, unified nations.'
+      },
+      feudalism: {
+        term: 'Feudalism',
+        definition: 'A medieval system where powerful local nobles owned large lands, had their own private armies, and held power over peasants.',
+        example: 'Absolute monarchs worked hard to weaken feudalism so nobles could no longer rebel.'
+      },
+      mercantilism: {
+        term: 'Mercantilism',
+        definition: 'An economic policy where a nation tries to get rich by exporting (selling) more goods than it imports (buys) in order to collect gold and silver.',
+        example: 'Under mercantilism, France built its own workshops so it would not have to buy foreign cloth.'
+      },
+      tariffs: {
+        term: 'Tariffs',
+        definition: 'Special taxes placed on goods imported from foreign countries to make foreign products more expensive and protect local businesses.',
+        example: 'High tariffs kept cheap foreign goods out of royal markets.'
+      },
+      estates: {
+        term: 'Estates (Social Classes)',
+        definition: 'The strict social groups in old Europe: the First Estate (clergy/church leaders), the Second Estate (nobles), and the Third Estate (peasants, workers, and townspeople).',
+        example: 'In France, the First and Second Estates paid almost no taxes, leaving the burden on the Third Estate.'
+      },
+      intendants: {
+        term: 'Intendants',
+        definition: 'Loyal middle-class government officials sent by the French king to collect taxes and enforce royal laws in the provinces, replacing local nobles.',
+        example: 'Louis XIV used intendants to weaken the power of regional dukes.'
+      },
+      boyars: {
+        term: 'Boyars',
+        definition: 'Traditional, wealthy landowning nobles in Russia who held great power before Peter the Great forced them to modernize.',
+        example: 'Peter the Great taxed boyars who refused to shave their long beards.'
+      },
+      serfs: {
+        term: 'Serfs',
+        definition: 'Poor peasant farmers who were legally bound to the land they worked and could not leave or marry without their noble lord’s permission.',
+        example: 'Thousands of Russian serfs were forced to build the new city of St. Petersburg.'
+      },
+      bullion: {
+        term: 'Bullion',
+        definition: 'Large bars or coins of pure gold and silver kept in a country’s royal treasury.',
+        example: 'Spanish treasure ships carried silver bullion from the Americas back to King Philip II.'
+      },
+      huguenots: {
+        term: 'Huguenots',
+        definition: 'French Protestants who followed the teachings of John Calvin in a mostly Catholic country.',
+        example: 'When Louis XIV ended religious freedom for Huguenots in 1685, over 200,000 skilled workers fled France.'
+      },
+      'counter-reformation': {
+        term: 'Counter-Reformation',
+        definition: 'The Catholic Church’s movement in the 1500s and 1600s to reform itself and stop the spread of Protestantism in Europe.',
+        example: 'King Philip II of Spain used his army and wealth to lead the Catholic Counter-Reformation.'
+      },
+      inquisition: {
+        term: 'Inquisition',
+        definition: 'A strict Catholic court used by Spanish rulers to find, question, and punish people accused of heresy (religious beliefs against the Church).',
+        example: 'Philip II used the Inquisition to enforce strict Catholic loyalty across his empire.'
+      },
+      enlightenment: {
+        term: 'The Enlightenment',
+        definition: 'An intellectual movement in the 1700s where thinkers used reason and science to question absolute monarchy and argue for human rights and democracy.',
+        example: 'Ideas from the Enlightenment inspired citizens to demand written constitutions.'
+      },
+      philosophes: {
+        term: 'Philosophes',
+        definition: 'French Enlightenment writers and thinkers—such as Voltaire, Montesquieu, and Rousseau—who criticized unfair laws, censorship, and absolute rule.',
+        example: 'Philosophes met in Paris salons to debate freedom of speech and fair government.'
+      },
+      tyranny: {
+        term: 'Tyranny',
+        definition: 'Cruel, oppressive, or unfair use of power by a ruler who ignores the rights and well-being of the people.',
+        example: 'Heavy taxes and secret arrests made citizens accuse the king of tyranny.'
+      },
+      constitution: {
+        term: 'Constitution',
+        definition: 'A written set of fundamental laws that limits the power of the government and protects the basic rights of citizens.',
+        example: 'Revolutionaries demanded a constitution so the king could no longer tax people without permission.'
+      },
+      bureaucracy: {
+        term: 'Bureaucracy',
+        definition: 'A large system of appointed government workers, departments, and written rules used to run a country every day.',
+        example: 'Philip II managed his global empire through a massive paper bureaucracy at El Escorial.'
+      },
+      monopoly: {
+        term: 'Monopoly',
+        definition: 'Complete control over the trade or sale of a specific product by one company or the royal government, blocking all competitors.',
+        example: 'The king granted a trade monopoly to a royal company to control all overseas spice shipping.'
+      },
+      baillis: {
+        term: 'Baillis (Royal Bailiffs)',
+        definition: 'Salaried royal judges and tax officials appointed by medieval French kings to govern provinces directly.',
+        example: 'Louis VIII placed loyal baillis in conquered territories to replace rebel lords.'
+      },
+      sovereign: {
+        term: 'Sovereign',
+        definition: 'A supreme ruler (king, queen, or emperor) who holds the highest authority in a state.',
+        example: 'As sovereign, you must decide how to spend royal gold and keep peace.'
+      },
+      edict: {
+        term: 'Edict',
+        definition: 'An official order or law proclaimed directly by a king or monarch.',
+        example: 'The Edict of Nantes had protected French Protestants until Louis XIV canceled it.'
+      },
+      tithe: {
+        term: 'Tithe',
+        definition: 'A traditional tax—usually one-tenth of a person’s harvest or income—collected to support the Church or a royal crusade.',
+        example: 'Raising an extra tithe strained both local priests and poor farmers.'
+      },
+      galleons: {
+        term: 'Galleons',
+        definition: 'Large, heavily armed wooden sailing ships used by Spain and other European powers for war and carrying treasure.',
+        example: 'Spanish galleons carried silver across the Atlantic Ocean.'
+      },
+      autocrat: {
+        term: 'Autocrat',
+        definition: 'A ruler who governs alone with total, unchecked power.',
+        example: 'Russian tsars ruled as autocrats over both nobles and serfs.'
+      },
+      leviathan: {
+        term: 'Leviathan',
+        definition: 'A giant sea monster from ancient stories used by philosopher Thomas Hobbes as the title of his 1651 book describing an all-powerful sovereign government.',
+        example: 'In Leviathan, Hobbes argued that only a powerful ruler could stop society from falling into chaos.'
+      },
+      'state of nature': {
+        term: 'State of Nature',
+        definition: 'An imaginary time before any governments, laws, or police existed, when humans lived completely on their own.',
+        example: 'Hobbes believed life in the state of nature was violent, while Locke believed people had natural rights.'
+      },
+      'social contract': {
+        term: 'Social Contract',
+        definition: 'An agreement between citizens and their government in which people follow laws in exchange for protection of their safety or rights.',
+        example: 'Rousseau wrote The Social Contract to argue that laws should reflect the will of the people.'
+      },
+      'natural rights': {
+        term: 'Natural Rights',
+        definition: 'Basic freedoms that every human being is born with—according to John Locke, the rights to life, liberty, and property.',
+        example: 'Locke argued that if a king violates natural rights, citizens have the right to replace him.'
+      },
+      'separation of powers': {
+        term: 'Separation of Powers',
+        definition: 'Dividing government authority into three separate branches—legislative (lawmaking), executive (enforcing laws), and judicial (courts)—so no single ruler becomes a tyrant.',
+        example: 'Montesquieu’s idea of separation of powers shaped modern democratic constitutions.'
+      },
+      'general will': {
+        term: 'General Will',
+        definition: 'Jean-Jacques Rousseau’s idea of what is best for the entire community of citizens as a whole, rather than just the wishes of a king or wealthy nobles.',
+        example: 'Rousseau believed true laws must follow the general will of the people.'
+      },
+      'popular sovereignty': {
+        term: 'Popular Sovereignty',
+        definition: 'The democratic principle that final political power belongs to the citizens, not to a monarch by birth or divine right.',
+        example: 'Popular sovereignty challenged the old European rule of absolute kings.'
+      },
+      censorship: {
+        term: 'Censorship',
+        definition: 'When a government or church bans, deletes, or punishes books, newspapers, plays, or speech that criticize rulers.',
+        example: 'Voltaire fought fiercely against royal censorship and supported free speech.'
+      },
+      'religious toleration': {
+        term: 'Religious Toleration',
+        definition: 'Allowing people of different faiths to worship peacefully without being arrested, taxed unfairly, or forced to leave the country.',
+        example: 'Voltaire praised religious toleration after visiting England’s peaceful markets.'
+      }
+    };
+
+    const GLOSSARY_KEYS_SORTED = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
+    const GLOSSARY_REGEX = new RegExp(
+      `\\b(${GLOSSARY_KEYS_SORTED.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})s?\\b`,
+      'gi'
+    );
+
+    /* Safely wrap historical vocabulary words in clickable gloss buttons */
+    function glossText(rawText) {
+      const escaped = escapeHTML(rawText);
+      const seenInBlock = new Set();
+      return escaped.replace(GLOSSARY_REGEX, (match) => {
+        const lower = match.toLowerCase();
+        let key = GLOSSARY_KEYS_SORTED.find((k) => lower === k || lower === `${k}s`);
+        if (!key) return match;
+        // Highlight first occurrence of each term per paragraph so text stays clean and readable
+        if (seenInBlock.has(key)) return match;
+        seenInBlock.add(key);
+        return `<button type="button" onclick="openGlossaryTerm('${key}')" class="gloss-word" title="Click to see definition">${match}</button>`;
+      });
+    }
+
+    function openGlossaryTerm(key) {
+      const entry = GLOSSARY[key.toLowerCase()];
+      if (!entry) return;
+      document.getElementById('glossModalWord').textContent = entry.term;
+      document.getElementById('glossModalDef').textContent = entry.definition;
+      document.getElementById('glossModalExample').textContent = entry.example;
+      document.getElementById('glossaryTermModal').classList.remove('hidden');
+    }
+
+    function closeGlossaryTerm() {
+      document.getElementById('glossaryTermModal').classList.add('hidden');
+    }
+
+    function toggleGlossaryIndexModal(show) {
+      const modal = document.getElementById('glossaryIndexModal');
+      if (!modal) return;
+      if (show) {
+        const listEl = document.getElementById('glossaryIndexList');
+        if (listEl) {
+          listEl.innerHTML = Object.keys(GLOSSARY)
+            .sort()
+            .map((k) => {
+              const item = GLOSSARY[k];
+              return `
+                <div class="p-3.5 rounded-xl bg-slate-900/90 border border-amber-500/30 space-y-1">
+                  <div class="font-display font-bold text-amber-300 text-sm">${escapeHTML(item.term)}</div>
+                  <p class="font-serif text-base text-slate-200 leading-snug">${escapeHTML(item.definition)}</p>
+                </div>
+              `;
+            })
+            .join('');
+        }
+        modal.classList.remove('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+       1. SOUND EFFECTS ENGINE (Synthesized via Tone.js - Zero External URLs)
+       --------------------------------------------------------------------- */
+    let soundEnabled = true;
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('soundLabel').textContent = soundEnabled ? 'Sound On' : 'Muted';
+    }
+
+    function playSoundEffect(type) {
+      if (!soundEnabled || typeof Tone === 'undefined') return;
+      try {
+        if (Tone.context.state !== 'running') {
+          Tone.start();
+        }
+        const synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.02, decay: 0.25, sustain: 0.1, release: 0.5 }
+        }).toDestination();
+        synth.volume.value = -12;
+
+        const now = Tone.now();
+        if (type === 'start') {
+          synth.triggerAttackRelease(['C4', 'E4', 'G4', 'C5'], '8n', now);
+        } else if (type === 'choice') {
+          synth.triggerAttackRelease(['D4', 'A4'], '16n', now);
+        } else if (type === 'crownLoss') {
+          synth.triggerAttackRelease(['C3', 'Eb3', 'Gb3'], '4n', now);
+        } else if (type === 'victory') {
+          synth.triggerAttackRelease(['C4', 'E4', 'G4'], '8n', now);
+          synth.triggerAttackRelease(['F4', 'A4', 'C5'], '8n', now + 0.2);
+          synth.triggerAttackRelease(['G4', 'B4', 'D5', 'G5'], '2n', now + 0.4);
+        } else if (type === 'defeat') {
+          synth.triggerAttackRelease(['D3', 'F3', 'Ab3'], '4n', now);
+          synth.triggerAttackRelease(['C3', 'Eb3', 'G3'], '2n', now + 0.35);
+        }
+      } catch (e) {
+        // Silently ignore audio errors if browser blocks autoplay
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+       2. INLINE SVG HERALDIC CRESTS, PORTRAIT FALLBACKS & HISTORICAL SCENES
+       --------------------------------------------------------------------- */
+    const SVG_CRESTS = {
+      louis_xiv: `
+        <svg class="w-8 h-8" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <circle cx="20" cy="20" r="16" fill="#1e3a8a" stroke="#fbbf24" stroke-width="2"/>
+          <circle cx="20" cy="20" r="7" fill="#fbbf24"/>
+          <path d="M20 6V11M20 29V34M6 20H11M29 20H34M10 10L14 14M26 26L30 30M30 10L26 14M14 26L10 30" stroke="#fef08a" stroke-width="2" stroke-linecap="round"/>
+        </svg>`,
+      peter_great: `
+        <svg class="w-8 h-8" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <rect x="5" y="5" width="30" height="30" rx="8" fill="#064e3b" stroke="#fbbf24" stroke-width="2"/>
+          <path d="M12 27L20 11L28 27H12Z" fill="none" stroke="#fde047" stroke-width="2.2"/>
+          <circle cx="20" cy="21" r="3" fill="#fbbf24"/>
+        </svg>`,
+      philip_ii: `
+        <svg class="w-8 h-8" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M8 7H32V21C32 28 20 34 20 34C20 34 8 28 8 21V7Z" fill="#7f1d1d" stroke="#fbbf24" stroke-width="2"/>
+          <path d="M20 11V28M14 18H26" stroke="#fef08a" stroke-width="2.8" stroke-linecap="round"/>
+        </svg>`,
+      louis_viii: `
+        <svg class="w-8 h-8" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M8 7H32V21C32 28 20 34 20 34C20 34 8 28 8 21V7Z" fill="#1d4ed8" stroke="#fbbf24" stroke-width="2"/>
+          <path d="M20 11C17 15 17 19 20 24C23 19 23 15 20 11ZM14 18C16 19 17 21 17 24C15 23 13 21 14 18ZM26 18C24 19 23 21 23 24C25 23 27 21 26 18Z" fill="#fde047"/>
+        </svg>`
+    };
+
+    function getFallbackPortraitSVG(monarchId) {
+      const themes = {
+        louis_xiv: { bg1: '#1e3a8a', bg2: '#7f1d1d', robe: '#1d4ed8', label: 'LOUIS XIV' },
+        peter_great: { bg1: '#064e3b', bg2: '#0f172a', robe: '#047857', label: 'PETER I' },
+        philip_ii: { bg1: '#450a0a', bg2: '#1e1b4b', robe: '#18181b', label: 'PHILIP II' },
+        louis_viii: { bg1: '#3b0764', bg2: '#1e3a8a', robe: '#2563eb', label: 'LOUIS VIII' }
+      };
+      const t = themes[monarchId] || themes.louis_xiv;
+      return `
+        <svg viewBox="0 0 320 260" class="w-full h-full object-cover" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="fb_${monarchId}" x1="0" y1="0" x2="320" y2="260" gradientUnits="userSpaceOnUse">
+              <stop stop-color="${t.bg1}"/>
+              <stop offset="1" stop-color="${t.bg2}"/>
+            </linearGradient>
+          </defs>
+          <rect width="320" height="260" fill="url(#fb_${monarchId})"/>
+          <circle cx="160" cy="108" r="78" fill="none" stroke="#d4af37" stroke-width="2" stroke-dasharray="5 4" opacity="0.7"/>
+          <path d="M72 255C80 186 116 168 160 168C204 168 240 186 248 255H72Z" fill="${t.robe}" stroke="#fbbf24" stroke-width="2.5"/>
+          <ellipse cx="160" cy="116" rx="30" ry="36" fill="#f5cfa0" stroke="#92400e" stroke-width="1.5"/>
+          <path d="M130 86L137 64L149 75L160 58L171 75L183 64L190 86H130Z" fill="#fbbf24" stroke="#78350f" stroke-width="1.8"/>
+          <text x="160" y="232" text-anchor="middle" fill="#fef08a" font-family="Cinzel, serif" font-size="18" font-weight="bold">${t.label}</text>
+        </svg>
+      `;
+    }
+
+    function getThinkerFallbackSVG(thinkerId) {
+      const styles = {
+        hobbes: { bg1: '#1e293b', bg2: '#7f1d1d', coat: '#334155', hair: '#cbd5e1', label: 'HOBBES' },
+        locke: { bg1: '#064e3b', bg2: '#1e1b4b', coat: '#1e3a8a', hair: '#e2e8f0', label: 'LOCKE' },
+        montesquieu: { bg1: '#3b0764', bg2: '#1e293b', coat: '#581c87', hair: '#f8fafc', label: 'MONTESQUIEU' },
+        rousseau: { bg1: '#78350f', bg2: '#0f172a', coat: '#92400e', hair: '#fef3c7', label: 'ROUSSEAU' },
+        voltaire: { bg1: '#450a0a', bg2: '#3b0764', coat: '#991b1b', hair: '#f1f5f9', label: 'VOLTAIRE' }
+      };
+      const s = styles[thinkerId] || styles.locke;
+      return `
+        <svg viewBox="0 0 300 240" class="w-full h-full object-cover" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="th_${thinkerId}" x1="0" y1="0" x2="300" y2="240" gradientUnits="userSpaceOnUse">
+              <stop stop-color="${s.bg1}"/>
+              <stop offset="1" stop-color="${s.bg2}"/>
+            </linearGradient>
+          </defs>
+          <rect width="300" height="240" fill="url(#th_${thinkerId})"/>
+          <circle cx="150" cy="102" r="72" fill="none" stroke="#d4af37" stroke-width="1.8" stroke-dasharray="4 3" opacity="0.65"/>
+          <path d="M68 235C76 172 110 156 150 156C190 156 224 172 232 235H68Z" fill="${s.coat}" stroke="#fde68a" stroke-width="2"/>
+          <path d="M112 108C112 72 188 72 188 108C194 128 188 148 176 152H124C112 148 106 128 112 108Z" fill="${s.hair}"/>
+          <ellipse cx="150" cy="108" rx="27" ry="33" fill="#f5cfa0" stroke="#78350f" stroke-width="1.4"/>
+          <path d="M138 156L150 178L162 156Z" fill="#fffbeb"/>
+          <rect x="65" y="204" width="170" height="24" rx="6" fill="#090d16" fill-opacity="0.88" stroke="#d4af37" stroke-width="1.2"/>
+          <text x="150" y="220" text-anchor="middle" fill="#fef08a" font-family="Cinzel, serif" font-size="13" font-weight="bold">${s.label}</text>
+        </svg>
+      `;
+    }
+
+    function getSceneIllustrationSVG(sceneType) {
+      const scenes = {
+        palace: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scPalace" x1="0" y1="0" x2="0" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1e1b4b"/><stop offset="0.6" stop-color="#7c2d12"/><stop offset="1" stop-color="#f59e0b"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scPalace)"/>
+            <circle cx="400" cy="82" r="48" fill="#fde047" opacity="0.85"/>
+            <rect x="110" y="108" width="580" height="68" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+            <rect x="280" y="78" width="240" height="98" fill="#fffbeb" stroke="#d97706" stroke-width="2.5"/>
+            <polygon points="270,78 400,42 530,78" fill="#1e3a8a" stroke="#fbbf24" stroke-width="2"/>
+            <rect x="0" y="176" width="800" height="44" fill="#064e3b"/>
+            <ellipse cx="400" cy="196" rx="92" ry="14" fill="#0284c7" stroke="#fbbf24" stroke-width="2"/>
+          </svg>`,
+        army: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scArmy" x1="0" y1="0" x2="800" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0f172a"/><stop offset="0.6" stop-color="#7f1d1d"/><stop offset="1" stop-color="#b45309"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scArmy)"/>
+            <path d="M0 148H150V128H185V148H615V128H650V148H800V220H0Z" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+            <g stroke="#fde047" stroke-width="2.5">
+              <line x1="270" y1="175" x2="295" y2="54"/>
+              <line x1="340" y1="175" x2="365" y2="54"/>
+              <line x1="435" y1="175" x2="460" y2="54"/>
+              <line x1="505" y1="175" x2="530" y2="54"/>
+            </g>
+            <polygon points="295,56 355,69 295,85" fill="#dc2626" stroke="#fbbf24" stroke-width="1.5"/>
+            <polygon points="460,56 520,69 460,85" fill="#1d4ed8" stroke="#fbbf24" stroke-width="1.5"/>
+          </svg>`,
+        taxes: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scTaxes" x1="0" y1="0" x2="800" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0f172a"/><stop offset="0.55" stop-color="#78350f"/><stop offset="1" stop-color="#065f46"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scTaxes)"/>
+            <g fill="#fbbf24" stroke="#92400e" stroke-width="2">
+              <ellipse cx="230" cy="176" rx="46" ry="11"/><ellipse cx="230" cy="164" rx="46" ry="11"/><ellipse cx="230" cy="152" rx="46" ry="11"/>
+              <ellipse cx="570" cy="176" rx="46" ry="11"/><ellipse cx="570" cy="164" rx="46" ry="11"/><ellipse cx="570" cy="152" rx="46" ry="11"/>
+            </g>
+            <line x1="400" y1="42" x2="400" y2="192" stroke="#fde047" stroke-width="5"/>
+            <line x1="275" y1="74" x2="525" y2="58" stroke="#fbbf24" stroke-width="4.5"/>
+            <circle cx="400" cy="66" r="13" fill="#dc2626" stroke="#fef08a" stroke-width="2"/>
+          </svg>`,
+        navy: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scNavy" x1="0" y1="0" x2="0" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0c4a6e"/><stop offset="0.65" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0f172a"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scNavy)"/>
+            <path d="M275 152H525L492 184H308L275 152Z" fill="#78350f" stroke="#fbbf24" stroke-width="2"/>
+            <line x1="360" y1="48" x2="360" y2="152" stroke="#fde047" stroke-width="3.5"/>
+            <line x1="445" y1="40" x2="445" y2="152" stroke="#fde047" stroke-width="3.5"/>
+            <path d="M360 55C398 68 398 116 360 132Z" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+            <path d="M445 46C492 62 492 118 445 136Z" fill="#fffbeb" stroke="#d97706" stroke-width="1.5"/>
+            <path d="M0 180Q100 165 200 180T400 180T600 180T800 180V220H0Z" fill="#0284c7" opacity="0.85"/>
+          </svg>`,
+        religion: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scRel" x1="400" y1="0" x2="400" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#3b0764"/><stop offset="0.65" stop-color="#1e1b4b"/><stop offset="1" stop-color="#0f172a"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scRel)"/>
+            <polygon points="400,0 245,220 555,220" fill="#fde047" opacity="0.14"/>
+            <path d="M270 220V106L400 28L530 106V220H270Z" fill="#1e293b" stroke="#d4af37" stroke-width="2.5"/>
+            <circle cx="400" cy="112" r="34" fill="#7f1d1d" stroke="#fbbf24" stroke-width="3"/>
+            <path d="M400 78V146M366 112H434" stroke="#fde047" stroke-width="2.5"/>
+          </svg>`,
+        enlightenment: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scEnl" x1="0" y1="0" x2="800" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#1e1b4b"/><stop offset="0.55" stop-color="#3b0764"/><stop offset="1" stop-color="#78350f"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scEnl)"/>
+            <circle cx="400" cy="80" r="60" fill="#fef08a" opacity="0.18"/>
+            <path d="M280 148C325 134 368 140 400 156C432 140 475 134 520 148V184C475 170 432 174 400 190C368 174 325 170 280 184V148Z" fill="#fdf6e3" stroke="#d97706" stroke-width="2.5"/>
+            <path d="M452 144C482 98 530 62 562 50C546 88 512 122 458 150Z" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+          </svg>`,
+        revolution: `
+          <svg viewBox="0 0 800 220" preserveAspectRatio="xMidYMid slice" class="w-full h-full">
+            <defs>
+              <linearGradient id="scRev" x1="0" y1="0" x2="800" y2="220" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#090d16"/><stop offset="0.5" stop-color="#7f1d1d"/><stop offset="1" stop-color="#ea580c"/>
+              </linearGradient>
+            </defs>
+            <rect width="800" height="220" fill="url(#scRev)"/>
+            <circle cx="400" cy="135" r="88" fill="#f97316" opacity="0.28"/>
+            <path d="M130 220L205 154L295 168L380 140L468 164L565 148L670 220H130Z" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+            <line x1="395" y1="146" x2="414" y2="48" stroke="#fef08a" stroke-width="4"/>
+            <polygon points="414,50 492,65 414,86" fill="#dc2626" stroke="#fef08a" stroke-width="1.5"/>
+          </svg>`
+      };
+      return scenes[sceneType] || scenes.palace;
+    }
+
+    /* ---------------------------------------------------------------------
+       3. MONARCHS & ENLIGHTENMENT THINKERS DATA (WITH MATCHING METADATA)
+       --------------------------------------------------------------------- */
+    const MONARCHS = [
+      {
+        id: 'louis_xiv',
+        name: 'Louis XIV',
+        epithet: 'The Sun King',
+        title: 'King of France (r. 1643–1715)',
+        realm: 'Kingdom of France',
+        regionMatch: 'Kingdom of France (Western Europe)',
+        problemMatch: 'Rebellious provincial dukes (the Fronde), nobles avoiding taxes, and massive war and Versailles palace debts',
+        quote: '“L’État, c’est moi — I am the state.”',
+        quoteSource: 'Attributed to King Louis XIV of France',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Rigaud_Louis_XIV_1701.jpg?width=500',
+        imageCaption: 'Portrait of Louis XIV in Coronation Robes, Hyacinthe Rigaud (1701), Louvre Museum',
+        synopsis: 'Saying "I am the state," Louis XIV built the strongest model of absolutism in Europe. He took power away from local nobles by requiring them to live at his grand Palace of Versailles, where daily court ceremonies kept them busy and loyal. Using mercantilism and loyal royal intendants, he grew French industry and built a massive standing army. However, his decision to cancel the Edict of Nantes against Protestant Huguenots and his endless foreign wars left France deeply in debt.',
+        stats: { treasury: 46, stability: 52, legitimacy: 62, tyranny: 26 },
+        trait: 'High Divine Legitimacy • Strained War & Palace Treasury',
+        realHistoryDebrief: 'In real history, Louis XIV tamed the French nobility at Versailles and made France the cultural center of Europe. However, canceling the Edict of Nantes drove away 200,000 skilled Huguenot workers, and decades of costly wars nearly bankrupted France—helping spark the French Revolution later on.'
+      },
+      {
+        id: 'peter_great',
+        name: 'Peter the Great',
+        epithet: 'Autocrat of All Russia',
+        title: 'Tsar & Emperor of All Russia (r. 1682–1725)',
+        realm: 'Tsardom / Empire of Russia',
+        regionMatch: 'Tsardom & Empire of Russia (Eastern Europe)',
+        problemMatch: 'Isolated medieval economy, traditional boyar nobles resisting Westernization, and lack of a Baltic sea port',
+        quote: '“Here we shall cut a window through into Europe.”',
+        quoteSource: 'Tsar Peter the Great at the founding of St. Petersburg, 1703',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Peter_I_by_Kneller.jpg?width=500',
+        imageCaption: 'Portrait of Tsar Peter I the Great, Sir Godfrey Kneller (1698), Royal Collection',
+        synopsis: 'Determined to turn Russia from an isolated medieval kingdom into a modern European power, Peter the Great traveled to Western Europe to study shipbuilding and factories. Back home, this autocrat forced traditional boyars to shave their beards and wear Western clothes, brought the Orthodox Church under state control, and built Russia’s first navy. He also forced tens of thousands of serfs to build St. Petersburg—his "Window to the West"—causing heavy suffering among common people.',
+        stats: { treasury: 50, stability: 44, legitimacy: 54, tyranny: 28 },
+        trait: 'Bold Westernizer • High Boyar & Serf Resistance',
+        realHistoryDebrief: 'In real history, Peter the Great modernized Russia’s army, defeated Sweden, and built St. Petersburg on the Baltic Sea. However, because he forced Western reforms from the top down while increasing taxes on serfs, he created a deep divide between Westernized nobles and the poor Russian majority.'
+      },
+      {
+        id: 'philip_ii',
+        name: 'Philip II',
+        epithet: 'The Prudent King',
+        title: 'King of Spain & Habsburg Sovereign (r. 1556–1598)',
+        realm: 'Spanish Habsburg Empire',
+        regionMatch: 'Spanish Habsburg Empire (Spain, Netherlands & the Americas)',
+        problemMatch: 'Overextended global lands, Protestant Dutch Revolt, English naval raids, and silver inflation causing bankruptcies',
+        quote: '“I would rather lose all my lands and a hundred lives than rule over heretics.”',
+        quoteSource: 'King Philip II of Spain, 1566',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Philip_II_portrait_by_Titian.jpg?width=500',
+        imageCaption: 'Portrait of Philip II of Spain, Titian / Workshop (c. 1551), Museo del Prado',
+        synopsis: 'Ruling a giant global empire across Spain, the Netherlands, Italy, and the Americas from his stone palace of El Escorial, Philip II led the Catholic Counter-Reformation. He managed his empire through centralization and a massive paper bureaucracy, paying for armies and galleons with silver bullion from the Americas. Yet his religious wars against Protestant England, Dutch rebels, and the Ottoman Empire repeatedly bankrupted Spain.',
+        stats: { treasury: 60, stability: 46, legitimacy: 58, tyranny: 25 },
+        trait: 'Rich American Silver • Overextended Global Empire',
+        realHistoryDebrief: 'In real history, Philip II centralized Spanish rule and defended Catholicism, defeating the Ottoman navy at Lepanto (1571). However, the defeat of his Spanish Armada against England (1588), the costly Dutch Revolt, and overspending American silver led to four royal bankruptcies.'
+      },
+      {
+        id: 'louis_viii',
+        name: 'Louis VIII',
+        epithet: 'The Lion of France',
+        title: 'King of France (r. 1223–1226)',
+        realm: 'Capetian Kingdom of France',
+        regionMatch: 'Capetian Kingdom of France (Medieval Western & Southern France)',
+        problemMatch: 'Weak feudalism with rebellious barons, English control of western ports, and independent southern Languedoc',
+        quote: '“The King of France shall no longer be equal to his vassals, but sovereign over all.”',
+        quoteSource: 'Capetian Royal Chronicle, 1224',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Coronation_of_Louis_VIII_and_Blanche_of_Castille_1223.jpg?width=500',
+        imageCaption: 'Coronation of Louis VIII and Blanche of Castile at Reims, Jean Fouquet, Grandes Chroniques de France, BnF',
+        synopsis: 'Known as "the Lion," Louis VIII helped move France away from weak medieval feudalism toward a strong, unified kingdom. He captured key territories in western France from England and led a royal crusade into southern Languedoc. By placing loyal royal baillis in conquered lands, growing crown tax income, and uniting the monarchy with the Catholic Church, he built the foundation for future French absolute rulers.',
+        stats: { treasury: 50, stability: 48, legitimacy: 56, tyranny: 22 },
+        trait: 'Balanced Statebuilder • Rebellious Feudal Lords',
+        realHistoryDebrief: 'In real history, Louis VIII defeated English forces in western France and expanded royal control into southern Languedoc. His expansion of royal lands and use of loyal royal administrators laid the groundwork for future French absolutism.'
+      }
+    ];
+
+    const ENLIGHTENMENT_THINKERS = [
+      {
+        id: 'hobbes',
+        name: 'Thomas Hobbes',
+        years: '1588–1679 • English Political Philosopher',
+        work: 'Leviathan (1651)',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Thomas_Hobbes_by_John_Michael_Wright.jpg?width=400',
+        imageCaption: 'Portrait of Thomas Hobbes, John Michael Wright (c. 1669), National Portrait Gallery',
+        quote: '“Without a strong sovereign, life in the state of nature is solitary, poor, nasty, brutish, and short.”',
+        summary: 'Witnessing the chaos of the English Civil War, Hobbes argued that humans are naturally selfish and violent in a state of nature. Therefore, people must enter a social contract giving total power to an absolute sovereign (a Leviathan) to maintain peace and order.',
+        matchIdeaQuote: 'Defended Absolutism via the Social Contract: humans are naturally selfish, so people must obey an all-powerful sovereign to escape a "nasty, brutish, and short" state of nature.'
+      },
+      {
+        id: 'locke',
+        name: 'John Locke',
+        years: '1632–1704 • English Enlightenment Thinker',
+        work: 'Two Treatises of Government (1689)',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/John_Locke_by_Godfrey_Kneller,_1697.jpg?width=400',
+        imageCaption: 'Portrait of John Locke, Sir Godfrey Kneller (1697), Hermitage Museum',
+        quote: '“All men are born with natural rights to life, liberty, and property; when rulers take these away, the people have the right to overthrow them.”',
+        summary: 'Locke rejected the Divine Right of Kings and argued that governments exist only by the consent of the governed to protect people’s natural rights to life, liberty, and property. If a king becomes a tyrant, citizens have the right to rebel and form a new government.',
+        matchIdeaQuote: 'Natural Rights & Right of Revolution: all people are born with natural rights to life, liberty, and property, and may overthrow rulers who govern without consent.'
+      },
+      {
+        id: 'montesquieu',
+        name: 'Baron de Montesquieu',
+        years: '1689–1755 • French Political Thinker',
+        work: 'The Spirit of the Laws (1748)',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Montesquieu_1.png?width=400',
+        imageCaption: 'Portrait of Baron de Montesquieu (c. 1728), Palace of Versailles',
+        quote: '“When the legislative and executive powers are united in the same person, there can be no liberty.”',
+        summary: 'To stop any monarch from becoming a despot, Montesquieu proposed the separation of powers—dividing government into three independent branches (legislative, executive, and judicial) so each branch checks and balances the others.',
+        matchIdeaQuote: 'Separation of Powers & Checks and Balances: liberty can only survive if lawmaking, executive, and court powers are divided instead of held by one ruler.'
+      },
+      {
+        id: 'rousseau',
+        name: 'Jean-Jacques Rousseau',
+        years: '1712–1778 • Geneva & French Philosophe',
+        work: 'The Social Contract (1762)',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Jean-Jacques_Rousseau_(painted_portrait).jpg?width=400',
+        imageCaption: 'Portrait of Jean-Jacques Rousseau, Maurice Quentin de La Tour (1753)',
+        quote: '“Man is born free, and everywhere he is in chains; legitimate laws must express the General Will of the people.”',
+        summary: 'Rousseau championed popular sovereignty, arguing that true political authority belongs to the citizens rather than kings or nobles. In a fair society, laws must reflect the General Will—the common good of all people.',
+        matchIdeaQuote: 'Popular Sovereignty & The General Will: "Man is born free, and everywhere he is in chains"—true authority belongs to the citizens, not divine-right kings.'
+      },
+      {
+        id: 'voltaire',
+        name: 'Voltaire',
+        years: '1694–1778 • French Enlightenment Writer',
+        work: 'Treatise on Tolerance (1763)',
+        imageUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/Atelier_de_Nicolas_de_Largilli%C3%A8re,_portrait_de_Voltaire,_d%C3%A9tail_(mus%C3%A9e_Carnavalet)_-002.jpg?width=400',
+        imageCaption: 'Portrait of Voltaire after Nicolas de Largillière (c. 1724), Musée Carnavalet',
+        quote: '“I disapprove of what you say, but I will defend to the death your right to say it.”',
+        summary: 'Imprisoned twice in the Bastille for mocking French officials, Voltaire used sharp satire to attack royal censorship, unfair trials, and religious persecution, championing freedom of speech and religious toleration.',
+        matchIdeaQuote: 'Freedom of Speech & Religious Toleration: attacked royal censorship and intolerance, declaring "I will defend to the death your right to say it."'
+      }
+    ];
+
+    /* ---------------------------------------------------------------------
+       3B. ROYAL ACADEMY STUDY & INTERACTIVE MATCHING ENGINE
+       --------------------------------------------------------------------- */
+    const academyState = {
+      selectedTile: null, // { board: 'monarch'|'thinker', type: 'portrait'|'region'|'problem'|'idea', id: string }
+      monarchMatches: {
+        louis_xiv: { portrait: null, region: null, problem: null },
+        peter_great: { portrait: null, region: null, problem: null },
+        philip_ii: { portrait: null, region: null, problem: null },
+        louis_viii: { portrait: null, region: null, problem: null }
+      },
+      monarchVerified: {
+        louis_xiv: false,
+        peter_great: false,
+        philip_ii: false,
+        louis_viii: false
+      },
+      thinkerMatches: {
+        hobbes: { portrait: null, idea: null },
+        locke: { portrait: null, idea: null },
+        montesquieu: { portrait: null, idea: null },
+        rousseau: { portrait: null, idea: null },
+        voltaire: { portrait: null, idea: null }
+      },
+      thinkerVerified: {
+        hobbes: false,
+        locke: false,
+        montesquieu: false,
+        rousseau: false,
+        voltaire: false
+      },
+      shuffledMonarchPortraits: [],
+      shuffledMonarchRegions: [],
+      shuffledMonarchProblems: [],
+      shuffledThinkerPortraits: [],
+      shuffledThinkerIdeas: [],
+      completed: false
+    };
+
+    function shuffleList(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function syncStudentNames(source) {
+      const aFirst = document.getElementById('academyFirstName');
+      const aLast = document.getElementById('academyLastName');
+      const sFirst = document.getElementById('studentFirstName');
+      const sLast = document.getElementById('studentLastName');
+      if (!aFirst || !aLast || !sFirst || !sLast) return;
+
+      if (source === 'academy') {
+        sFirst.value = aFirst.value;
+        sLast.value = aLast.value;
+      } else {
+        aFirst.value = sFirst.value;
+        aLast.value = sLast.value;
+      }
+    }
+
+    function initAcademy() {
+      academyState.shuffledMonarchPortraits = shuffleList(MONARCHS);
+      academyState.shuffledMonarchRegions = shuffleList(MONARCHS);
+      academyState.shuffledMonarchProblems = shuffleList(MONARCHS);
+      academyState.shuffledThinkerPortraits = shuffleList(ENLIGHTENMENT_THINKERS);
+      academyState.shuffledThinkerIdeas = shuffleList(ENLIGHTENMENT_THINKERS);
+
+      renderAcademyStudySections();
+      renderMonarchMatchingBoard();
+      renderThinkerMatchingBoard();
+      updateAcademyCompletionState();
+    }
+
+    function renderAcademyStudySections() {
+      const mGrid = document.getElementById('academyMonarchStudyGrid');
+      if (mGrid) {
+        mGrid.innerHTML = MONARCHS.map((m) => `
+          <article class="gilded-card rounded-2xl overflow-hidden flex flex-col">
+            <div class="flex flex-col sm:flex-row border-b border-amber-500/30 bg-slate-950/70">
+              <div class="w-full sm:w-40 h-52 sm:h-auto shrink-0 relative bg-slate-950 overflow-hidden">
+                <img src="${m.imageUrl}" alt="Primary source portrait of ${escapeHTML(m.name)}"
+                  class="w-full h-full object-cover object-top"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <div style="display:none;" class="w-full h-full">${getFallbackPortraitSVG(m.id)}</div>
+              </div>
+              <div class="p-4 flex-1 space-y-2">
+                <div class="flex flex-wrap items-center justify-between gap-1">
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-200 border border-amber-400/40">
+                    ${escapeHTML(m.epithet)}
+                  </span>
+                  <span class="text-[11px] text-slate-400">${escapeHTML(m.title)}</span>
+                </div>
+                <h3 class="font-display text-xl sm:text-2xl font-black text-white">${escapeHTML(m.name)}</h3>
+                <div class="text-xs text-emerald-300 font-semibold">
+                  📍 Region: <span class="text-slate-200">${escapeHTML(m.regionMatch)}</span>
+                </div>
+                <div class="text-xs text-rose-300 font-semibold">
+                  ⚔️ Main Ruling Problems: <span class="text-slate-200 font-normal">${glossText(m.problemMatch)}</span>
+                </div>
+                <p class="text-[11px] text-slate-400 italic pt-1">${escapeHTML(m.imageCaption)}</p>
+              </div>
+            </div>
+            <div class="p-4 space-y-3 flex-1 flex flex-col justify-between">
+              <p class="font-serif text-base text-slate-200 leading-relaxed">${glossText(m.synopsis)}</p>
+              <div class="parchment-panel rounded-xl p-3">
+                <p class="font-serif italic text-sm sm:text-base text-stone-900 font-semibold">${glossText(m.quote)}</p>
+                <p class="text-[11px] font-bold text-amber-900 mt-1">— ${escapeHTML(m.quoteSource)}</p>
+              </div>
+            </div>
+          </article>
+        `).join('');
+      }
+
+      const tGrid = document.getElementById('academyThinkerStudyGrid');
+      if (tGrid) {
+        tGrid.innerHTML = ENLIGHTENMENT_THINKERS.map((t) => `
+          <article class="gilded-card rounded-2xl overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="relative h-52 bg-slate-950 border-b border-purple-500/35 overflow-hidden">
+                <img src="${t.imageUrl}" alt="Primary source portrait of ${escapeHTML(t.name)}"
+                  class="w-full h-full object-cover object-top"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <div style="display:none;" class="w-full h-full">${getThinkerFallbackSVG(t.id)}</div>
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent"></div>
+                <div class="absolute bottom-2.5 left-3.5 right-3.5">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-950/90 text-purple-200 border border-purple-400/40">
+                    ${escapeHTML(t.work)}
+                  </span>
+                  <h3 class="font-display text-xl font-black text-white mt-1">${escapeHTML(t.name)}</h3>
+                  <p class="text-[11px] text-amber-200/90">${escapeHTML(t.years)}</p>
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <p class="text-[10px] text-slate-400 italic">${escapeHTML(t.imageCaption)}</p>
+                <p class="font-serif text-base text-slate-200 leading-relaxed">${glossText(t.summary)}</p>
+              </div>
+            </div>
+            <div class="px-4 pb-4">
+              <div class="parchment-panel rounded-xl p-3">
+                <p class="font-serif italic text-sm text-stone-900 font-semibold">${glossText(t.quote)}</p>
+              </div>
+            </div>
+          </article>
+        `).join('');
+      }
+    }
+
+    function selectBankTile(board, type, id) {
+      if (academyState.selectedTile &&
+          academyState.selectedTile.board === board &&
+          academyState.selectedTile.type === type &&
+          academyState.selectedTile.id === id) {
+        academyState.selectedTile = null;
+      } else {
+        academyState.selectedTile = { board, type, id };
+        playSoundEffect('choice');
+      }
+      if (board === 'monarch') renderMonarchMatchingBoard();
+      else renderThinkerMatchingBoard();
+    }
+
+    function assignToMonarchSlot(monarchId, slotType) {
+      if (academyState.monarchVerified[monarchId]) return;
+
+      // If slot already has an item and no matching tile is currently selected, remove it back to bank
+      if (academyState.monarchMatches[monarchId][slotType] &&
+          (!academyState.selectedTile ||
+           academyState.selectedTile.board !== 'monarch' ||
+           academyState.selectedTile.type !== slotType)) {
+        academyState.monarchMatches[monarchId][slotType] = null;
+        renderMonarchMatchingBoard();
+        return;
+      }
+
+      if (academyState.selectedTile &&
+          academyState.selectedTile.board === 'monarch' &&
+          academyState.selectedTile.type === slotType) {
+        const pickedId = academyState.selectedTile.id;
+        // Clear pickedId from any other unverified monarch slot of the same type
+        Object.keys(academyState.monarchMatches).forEach((mKey) => {
+          if (!academyState.monarchVerified[mKey] && academyState.monarchMatches[mKey][slotType] === pickedId) {
+            academyState.monarchMatches[mKey][slotType] = null;
+          }
+        });
+        academyState.monarchMatches[monarchId][slotType] = pickedId;
+        academyState.selectedTile = null;
+        playSoundEffect('choice');
+        renderMonarchMatchingBoard();
+      }
+    }
+
+    function renderMonarchMatchingBoard() {
+      const usedPortraits = new Set(Object.values(academyState.monarchMatches).map((x) => x.portrait).filter(Boolean));
+      const usedRegions = new Set(Object.values(academyState.monarchMatches).map((x) => x.region).filter(Boolean));
+      const usedProblems = new Set(Object.values(academyState.monarchMatches).map((x) => x.problem).filter(Boolean));
+
+      const sel = academyState.selectedTile;
+
+      // Render Portrait Bank
+      document.getElementById('bankMonarchPortraits').innerHTML = academyState.shuffledMonarchPortraits.map((m) => {
+        const isUsed = usedPortraits.has(m.id);
+        const isSelected = sel && sel.board === 'monarch' && sel.type === 'portrait' && sel.id === m.id;
+        return `
+          <button type="button" ${isUsed ? 'disabled' : ''} onclick="selectBankTile('monarch', 'portrait', '${m.id}')"
+            class="rounded-xl overflow-hidden border text-left transition cursor-pointer ${
+              isUsed ? 'opacity-30 border-slate-700 cursor-not-allowed'
+              : (isSelected ? 'ring-2 ring-amber-400 border-amber-300 scale-[1.02]' : 'border-amber-500/40 hover:border-amber-300')
+            } bg-slate-900">
+            <div class="h-24 w-full bg-slate-950 overflow-hidden">
+              <img src="${m.imageUrl}" alt="Historical Ruler Portrait" class="w-full h-full object-cover object-top"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <div style="display:none;" class="w-full h-full">${getFallbackPortraitSVG(m.id)}</div>
+            </div>
+            <div class="p-1.5 text-[10px] text-slate-300 leading-tight line-clamp-2">${escapeHTML(m.imageCaption)}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Render Region Bank
+      document.getElementById('bankMonarchRegions').innerHTML = academyState.shuffledMonarchRegions.map((m) => {
+        const isUsed = usedRegions.has(m.id);
+        const isSelected = sel && sel.board === 'monarch' && sel.type === 'region' && sel.id === m.id;
+        return `
+          <button type="button" ${isUsed ? 'disabled' : ''} onclick="selectBankTile('monarch', 'region', '${m.id}')"
+            class="w-full p-2.5 rounded-xl border text-left text-xs font-semibold transition cursor-pointer ${
+              isUsed ? 'opacity-30 border-slate-700 text-slate-500 cursor-not-allowed'
+              : (isSelected ? 'ring-2 ring-emerald-400 border-emerald-300 bg-emerald-950/60 text-white' : 'border-emerald-500/35 bg-slate-900 hover:bg-slate-800 text-emerald-200')
+            }">
+            📍 ${escapeHTML(m.regionMatch)}
+          </button>
+        `;
+      }).join('');
+
+      // Render Ruling Problems Bank
+      document.getElementById('bankMonarchProblems').innerHTML = academyState.shuffledMonarchProblems.map((m) => {
+        const isUsed = usedProblems.has(m.id);
+        const isSelected = sel && sel.board === 'monarch' && sel.type === 'problem' && sel.id === m.id;
+        return `
+          <button type="button" ${isUsed ? 'disabled' : ''} onclick="selectBankTile('monarch', 'problem', '${m.id}')"
+            class="w-full p-2.5 rounded-xl border text-left text-xs transition leading-snug cursor-pointer ${
+              isUsed ? 'opacity-30 border-slate-700 text-slate-500 cursor-not-allowed'
+              : (isSelected ? 'ring-2 ring-rose-400 border-rose-300 bg-rose-950/60 text-white' : 'border-rose-500/35 bg-slate-900 hover:bg-slate-800 text-slate-200')
+            }">
+            ⚔️ ${escapeHTML(m.problemMatch)}
+          </button>
+        `;
+      }).join('');
+
+      // Render 4 Monarch Target Cards
+      document.getElementById('targetMonarchCards').innerHTML = MONARCHS.map((m) => {
+        const assigned = academyState.monarchMatches[m.id];
+        const verified = academyState.monarchVerified[m.id];
+        const pObj = MONARCHS.find((x) => x.id === assigned.portrait);
+        const rObj = MONARCHS.find((x) => x.id === assigned.region);
+        const prObj = MONARCHS.find((x) => x.id === assigned.problem);
+
+        const highlightPortraitSlot = !verified && sel && sel.board === 'monarch' && sel.type === 'portrait';
+        const highlightRegionSlot = !verified && sel && sel.board === 'monarch' && sel.type === 'region';
+        const highlightProblemSlot = !verified && sel && sel.board === 'monarch' && sel.type === 'problem';
+
+        return `
+          <div class="rounded-2xl p-4 border ${verified ? 'border-emerald-400 bg-emerald-950/25' : 'border-amber-500/35 bg-slate-900/90'} space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-lg bg-slate-950 border border-amber-500/35 flex items-center justify-center">
+                  ${SVG_CRESTS[m.id] || ''}
+                </div>
+                <div>
+                  <h4 class="font-display text-lg font-bold text-white">${escapeHTML(m.name)}</h4>
+                  <span class="text-[11px] text-amber-300">${escapeHTML(m.epithet)}</span>
+                </div>
+              </div>
+              ${verified
+                ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-400/50">✓ Verified</span>'
+                : '<span class="text-[11px] text-slate-400">3 Slots to Match</span>'}
+            </div>
+
+            <!-- Slot 1: Portrait -->
+            <div onclick="assignToMonarchSlot('${m.id}', 'portrait')"
+              class="p-2.5 rounded-xl border border-dashed transition cursor-pointer flex items-center gap-3 ${
+                highlightPortraitSlot ? 'border-amber-300 bg-amber-500/15 animate-pulse' : 'border-amber-500/40 bg-slate-950/80 hover:border-amber-300'
+              }">
+              ${pObj ? `
+                <img src="${pObj.imageUrl}" alt="Matched Portrait" class="w-12 h-14 rounded-lg object-cover object-top shrink-0 border border-amber-400/50"
+                  onerror="this.style.display='none';" />
+                <div class="text-xs text-amber-200 flex-1">
+                  <strong>Portrait Placed:</strong> ${escapeHTML(pObj.imageCaption)}
+                  ${verified ? '' : '<span class="block text-[10px] text-slate-400 mt-0.5">(Click to remove)</span>'}
+                </div>
+              ` : `
+                <div class="w-12 h-14 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-lg shrink-0">🖼️</div>
+                <div class="text-xs text-slate-400">
+                  <strong class="text-amber-300">1. Portrait Slot:</strong> Select a portrait above, then click here.
+                </div>
+              `}
+            </div>
+
+            <!-- Slot 2: Region -->
+            <div onclick="assignToMonarchSlot('${m.id}', 'region')"
+              class="p-2.5 rounded-xl border border-dashed transition cursor-pointer text-xs ${
+                highlightRegionSlot ? 'border-emerald-300 bg-emerald-500/15 animate-pulse' : 'border-emerald-500/40 bg-slate-950/80 hover:border-emerald-300'
+              }">
+              ${rObj ? `
+                <span class="text-emerald-200 font-semibold">📍 ${escapeHTML(rObj.regionMatch)}</span>
+                ${verified ? '' : '<span class="text-[10px] text-slate-400 ml-1">(click to remove)</span>'}
+              ` : `<span class="text-slate-400"><strong class="text-emerald-300">2. Region Slot:</strong> Select a region above, then click here.</span>`}
+            </div>
+
+            <!-- Slot 3: Ruling Problem -->
+            <div onclick="assignToMonarchSlot('${m.id}', 'problem')"
+              class="p-2.5 rounded-xl border border-dashed transition cursor-pointer text-xs ${
+                highlightProblemSlot ? 'border-rose-300 bg-rose-500/15 animate-pulse' : 'border-rose-500/40 bg-slate-950/80 hover:border-rose-300'
+              }">
+              ${prObj ? `
+                <span class="text-slate-200">⚔️ ${escapeHTML(prObj.problemMatch)}</span>
+                ${verified ? '' : '<span class="text-[10px] text-slate-400 ml-1">(click to remove)</span>'}
+              ` : `<span class="text-slate-400"><strong class="text-rose-300">3. Ruling Problem Slot:</strong> Select a problem above, then click here.</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function verifyMonarchMatches() {
+      const fb = document.getElementById('monarchMatchFeedback');
+      let correctCount = 0;
+      const hints = [];
+
+      MONARCHS.forEach((m) => {
+        const a = academyState.monarchMatches[m.id];
+        if (a.portrait === m.id && a.region === m.id && a.problem === m.id) {
+          academyState.monarchVerified[m.id] = true;
+          correctCount += 1;
+        } else {
+          academyState.monarchVerified[m.id] = false;
+          if (!a.portrait || !a.region || !a.problem) {
+            hints.push(`${m.name}: still missing one or more slots.`);
+          } else {
+            const wrongParts = [];
+            if (a.portrait !== m.id) wrongParts.push('portrait');
+            if (a.region !== m.id) wrongParts.push('region');
+            if (a.problem !== m.id) wrongParts.push('ruling problem');
+            hints.push(`${m.name}: check the ${wrongParts.join(', ')}.`);
+          }
+        }
+      });
+
+      fb.classList.remove('hidden');
+      if (correctCount === MONARCHS.length) {
+        playSoundEffect('victory');
+        fb.className = 'rounded-xl p-3.5 text-sm border bg-emerald-950/90 border-emerald-400 text-emerald-200 font-semibold';
+        fb.textContent = '🎉 Excellent work! All 4 Absolute Monarchs are matched with their portraits, regions, and main ruling problems!';
+      } else {
+        playSoundEffect('crownLoss');
+        fb.className = 'rounded-xl p-3.5 text-sm border bg-rose-950/90 border-rose-400 text-rose-200';
+        fb.innerHTML = `<strong>${correctCount} of 4 Monarchs verified.</strong> Review the hints below (or check Part I above):<br><span class="text-xs">${escapeHTML(hints.join(' | '))}</span>`;
+      }
+
+      renderMonarchMatchingBoard();
+      updateAcademyCompletionState();
+    }
+
+    function resetMonarchMatches() {
+      MONARCHS.forEach((m) => {
+        academyState.monarchMatches[m.id] = { portrait: null, region: null, problem: null };
+        academyState.monarchVerified[m.id] = false;
+      });
+      academyState.selectedTile = null;
+      document.getElementById('monarchMatchFeedback').classList.add('hidden');
+      renderMonarchMatchingBoard();
+      updateAcademyCompletionState();
+    }
+
+    /* Enlightenment Thinkers Matching Board */
+    function assignToThinkerSlot(thinkerId, slotType) {
+      if (academyState.thinkerVerified[thinkerId]) return;
+
+      if (academyState.thinkerMatches[thinkerId][slotType] &&
+          (!academyState.selectedTile ||
+           academyState.selectedTile.board !== 'thinker' ||
+           academyState.selectedTile.type !== slotType)) {
+        academyState.thinkerMatches[thinkerId][slotType] = null;
+        renderThinkerMatchingBoard();
+        return;
+      }
+
+      if (academyState.selectedTile &&
+          academyState.selectedTile.board === 'thinker' &&
+          academyState.selectedTile.type === slotType) {
+        const pickedId = academyState.selectedTile.id;
+        Object.keys(academyState.thinkerMatches).forEach((tKey) => {
+          if (!academyState.thinkerVerified[tKey] && academyState.thinkerMatches[tKey][slotType] === pickedId) {
+            academyState.thinkerMatches[tKey][slotType] = null;
+          }
+        });
+        academyState.thinkerMatches[thinkerId][slotType] = pickedId;
+        academyState.selectedTile = null;
+        playSoundEffect('choice');
+        renderThinkerMatchingBoard();
+      }
+    }
+
+    function renderThinkerMatchingBoard() {
+      const usedPortraits = new Set(Object.values(academyState.thinkerMatches).map((x) => x.portrait).filter(Boolean));
+      const usedIdeas = new Set(Object.values(academyState.thinkerMatches).map((x) => x.idea).filter(Boolean));
+      const sel = academyState.selectedTile;
+
+      // Render Thinker Portrait Bank
+      document.getElementById('bankThinkerPortraits').innerHTML = academyState.shuffledThinkerPortraits.map((t) => {
+        const isUsed = usedPortraits.has(t.id);
+        const isSelected = sel && sel.board === 'thinker' && sel.type === 'portrait' && sel.id === t.id;
+        return `
+          <button type="button" ${isUsed ? 'disabled' : ''} onclick="selectBankTile('thinker', 'portrait', '${t.id}')"
+            class="rounded-xl overflow-hidden border text-left transition cursor-pointer ${
+              isUsed ? 'opacity-30 border-slate-700 cursor-not-allowed'
+              : (isSelected ? 'ring-2 ring-amber-400 border-amber-300 scale-[1.02]' : 'border-amber-500/40 hover:border-amber-300')
+            } bg-slate-900">
+            <div class="h-24 w-full bg-slate-950 overflow-hidden">
+              <img src="${t.imageUrl}" alt="Philosopher Portrait" class="w-full h-full object-cover object-top"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <div style="display:none;" class="w-full h-full">${getThinkerFallbackSVG(t.id)}</div>
+            </div>
+            <div class="p-1.5 text-[10px] text-slate-300 leading-tight line-clamp-2">${escapeHTML(t.work)}</div>
+          </button>
+        `;
+      }).join('');
+
+      // Render Thinker Key Ideas & Quotes Bank
+      document.getElementById('bankThinkerIdeas').innerHTML = academyState.shuffledThinkerIdeas.map((t) => {
+        const isUsed = usedIdeas.has(t.id);
+        const isSelected = sel && sel.board === 'thinker' && sel.type === 'idea' && sel.id === t.id;
+        return `
+          <button type="button" ${isUsed ? 'disabled' : ''} onclick="selectBankTile('thinker', 'idea', '${t.id}')"
+            class="w-full p-2.5 rounded-xl border text-left text-xs transition leading-snug cursor-pointer ${
+              isUsed ? 'opacity-30 border-slate-700 text-slate-500 cursor-not-allowed'
+              : (isSelected ? 'ring-2 ring-purple-400 border-purple-300 bg-purple-950/60 text-white' : 'border-purple-500/35 bg-slate-900 hover:bg-slate-800 text-slate-200')
+            }">
+            💡 ${escapeHTML(t.matchIdeaQuote)}
+          </button>
+        `;
+      }).join('');
+
+      // Render 5 Thinker Target Cards
+      document.getElementById('targetThinkerCards').innerHTML = ENLIGHTENMENT_THINKERS.map((t) => {
+        const assigned = academyState.thinkerMatches[t.id];
+        const verified = academyState.thinkerVerified[t.id];
+        const pObj = ENLIGHTENMENT_THINKERS.find((x) => x.id === assigned.portrait);
+        const iObj = ENLIGHTENMENT_THINKERS.find((x) => x.id === assigned.idea);
+
+        const highlightPortraitSlot = !verified && sel && sel.board === 'thinker' && sel.type === 'portrait';
+        const highlightIdeaSlot = !verified && sel && sel.board === 'thinker' && sel.type === 'idea';
+
+        return `
+          <div class="rounded-2xl p-4 border ${verified ? 'border-emerald-400 bg-emerald-950/25' : 'border-purple-500/35 bg-slate-900/90'} space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <h4 class="font-display text-lg font-bold text-white">${escapeHTML(t.name)}</h4>
+                <span class="text-[11px] text-purple-300">${escapeHTML(t.years)}</span>
+              </div>
+              ${verified
+                ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/25 text-emerald-300 border border-emerald-400/50 shrink-0">✓ Verified</span>'
+                : '<span class="text-[11px] text-slate-400 shrink-0">2 Slots</span>'}
+            </div>
+
+            <!-- Slot 1: Portrait -->
+            <div onclick="assignToThinkerSlot('${t.id}', 'portrait')"
+              class="p-2.5 rounded-xl border border-dashed transition cursor-pointer flex items-center gap-3 ${
+                highlightPortraitSlot ? 'border-amber-300 bg-amber-500/15 animate-pulse' : 'border-amber-500/40 bg-slate-950/80 hover:border-amber-300'
+              }">
+              ${pObj ? `
+                <img src="${pObj.imageUrl}" alt="Matched Portrait" class="w-12 h-14 rounded-lg object-cover object-top shrink-0 border border-amber-400/50"
+                  onerror="this.style.display='none';" />
+                <div class="text-xs text-amber-200 flex-1">
+                  <strong>Portrait:</strong> ${escapeHTML(pObj.work)}
+                  ${verified ? '' : '<span class="block text-[10px] text-slate-400 mt-0.5">(Click to remove)</span>'}
+                </div>
+              ` : `
+                <div class="w-12 h-14 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center text-lg shrink-0">🖼️</div>
+                <div class="text-xs text-slate-400">
+                  <strong class="text-amber-300">1. Portrait Slot:</strong> Select a portrait above, then click here.
+                </div>
+              `}
+            </div>
+
+            <!-- Slot 2: Key Idea & Quote -->
+            <div onclick="assignToThinkerSlot('${t.id}', 'idea')"
+              class="p-2.5 rounded-xl border border-dashed transition cursor-pointer text-xs ${
+                highlightIdeaSlot ? 'border-purple-300 bg-purple-500/15 animate-pulse' : 'border-purple-500/40 bg-slate-950/80 hover:border-purple-300'
+              }">
+              ${iObj ? `
+                <span class="text-slate-200">💡 ${escapeHTML(iObj.matchIdeaQuote)}</span>
+                ${verified ? '' : '<span class="text-[10px] text-slate-400 ml-1">(click to remove)</span>'}
+              ` : `<span class="text-slate-400"><strong class="text-purple-300">2. Key Idea &amp; Quote Slot:</strong> Select an idea above, then click here.</span>`}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function verifyThinkerMatches() {
+      const fb = document.getElementById('thinkerMatchFeedback');
+      let correctCount = 0;
+      const hints = [];
+
+      ENLIGHTENMENT_THINKERS.forEach((t) => {
+        const a = academyState.thinkerMatches[t.id];
+        if (a.portrait === t.id && a.idea === t.id) {
+          academyState.thinkerVerified[t.id] = true;
+          correctCount += 1;
+        } else {
+          academyState.thinkerVerified[t.id] = false;
+          if (!a.portrait || !a.idea) {
+            hints.push(`${t.name}: still missing a portrait or idea.`);
+          } else {
+            const wrongParts = [];
+            if (a.portrait !== t.id) wrongParts.push('portrait');
+            if (a.idea !== t.id) wrongParts.push('key idea/quote');
+            hints.push(`${t.name}: check the ${wrongParts.join(' & ')}.`);
+          }
+        }
+      });
+
+      fb.classList.remove('hidden');
+      if (correctCount === ENLIGHTENMENT_THINKERS.length) {
+        playSoundEffect('victory');
+        fb.className = 'rounded-xl p-3.5 text-sm border bg-emerald-950/90 border-emerald-400 text-emerald-200 font-semibold';
+        fb.textContent = '🎉 Brilliant! All 5 Enlightenment Thinkers are matched with their primary source portraits and key political ideas!';
+      } else {
+        playSoundEffect('crownLoss');
+        fb.className = 'rounded-xl p-3.5 text-sm border bg-rose-950/90 border-rose-400 text-rose-200';
+        fb.innerHTML = `<strong>${correctCount} of 5 Thinkers verified.</strong> Review the hints below (or check Part II above):<br><span class="text-xs">${escapeHTML(hints.join(' | '))}</span>`;
+      }
+
+      renderThinkerMatchingBoard();
+      updateAcademyCompletionState();
+    }
+
+    function resetThinkerMatches() {
+      ENLIGHTENMENT_THINKERS.forEach((t) => {
+        academyState.thinkerMatches[t.id] = { portrait: null, idea: null };
+        academyState.thinkerVerified[t.id] = false;
+      });
+      academyState.selectedTile = null;
+      document.getElementById('thinkerMatchFeedback').classList.add('hidden');
+      renderThinkerMatchingBoard();
+      updateAcademyCompletionState();
+    }
+
+    function updateAcademyCompletionState() {
+      const mVerifiedCount = Object.values(academyState.monarchVerified).filter(Boolean).length;
+      const tVerifiedCount = Object.values(academyState.thinkerVerified).filter(Boolean).length;
+
+      const mPill = document.getElementById('pillMonarchMatchStatus');
+      const tPill = document.getElementById('pillThinkerMatchStatus');
+      if (mPill) {
+        mPill.textContent = `1. Monarchs Match: ${mVerifiedCount} / 4 Verified`;
+        mPill.className = mVerifiedCount === 4
+          ? 'px-3.5 py-1.5 rounded-full bg-emerald-950 border border-emerald-400 text-emerald-200 font-bold'
+          : 'px-3.5 py-1.5 rounded-full bg-slate-900 border border-amber-500/40 text-amber-200 font-semibold';
+      }
+      if (tPill) {
+        tPill.textContent = `2. Enlightenment Match: ${tVerifiedCount} / 5 Verified`;
+        tPill.className = tVerifiedCount === 5
+          ? 'px-3.5 py-1.5 rounded-full bg-emerald-950 border border-emerald-400 text-emerald-200 font-bold'
+          : 'px-3.5 py-1.5 rounded-full bg-slate-900 border border-purple-500/40 text-purple-200 font-semibold';
+      }
+
+      const allDone = mVerifiedCount === 4 && tVerifiedCount === 5;
+      academyState.completed = allDone;
+
+      const btn = document.getElementById('btnEnterThroneRoom');
+      const badge = document.getElementById('academyUnlockBadge');
+      const title = document.getElementById('academyUnlockTitle');
+      const desc = document.getElementById('academyUnlockDesc');
+
+      if (btn && badge && title && desc) {
+        if (allDone) {
+          btn.disabled = false;
+          btn.className = 'px-8 py-4 rounded-xl btn-royal-gold font-display text-base sm:text-lg uppercase tracking-wider cursor-pointer';
+          btn.textContent = '👑 Enter the Throne Room & Choose Your Monarch →';
+          badge.className = 'inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-950 border border-emerald-400 text-emerald-200 text-xs font-bold uppercase tracking-wider';
+          badge.textContent = '✓ Royal Academy Complete • Throne Room Unlocked!';
+          title.textContent = 'You Are Ready to Rule Europe!';
+          desc.textContent = 'You have mastered the Absolute Monarchs and Enlightenment Thinkers. Proceed to the Throne Room to select your sovereign and begin!';
+        } else {
+          btn.disabled = true;
+          btn.className = 'px-8 py-4 rounded-xl font-display text-base sm:text-lg uppercase tracking-wider transition opacity-45 cursor-not-allowed bg-slate-800 text-slate-400 border border-slate-600';
+          btn.textContent = '🔒 Complete Matching Challenges to Enter Game →';
+        }
+      }
+    }
+
+    function completeAcademyAndProceed() {
+      if (!academyState.completed) return;
+      syncStudentNames('academy');
+      playSoundEffect('start');
+      document.getElementById('academyScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('setupScreen').classList.remove('hidden');
+      renderMonarchSelection();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openAcademyScreen() {
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('academyScreen').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ---------------------------------------------------------------------
+       4. HISTORICAL DILEMMA DECKS (ESL-Friendly Text & Non-Spoiler Advisor Hints)
+       --------------------------------------------------------------------- */
+    const MONARCH_UNIQUE_DILEMMAS = {
+      louis_xiv: {
+        era1: {
+          title: 'Memory of Noble Rebellions & Royal Intendants',
+          category: 'Era I • French Royal Centralization',
+          scene: 'palace',
+          isUnique: true,
+          description: 'When you were a child, rebellious nobles forced you to flee Paris. Today, powerful dukes still keep private soldiers in the provinces and ignore royal tax collectors. You must decide how to bring them under your control.',
+          quote: '“Up to this moment I have been pleased to let the Cardinal govern my affairs; from now on, I shall govern them myself.”',
+          quoteSource: 'Louis XIV to his ministers, 1661',
+          choices: [
+            {
+              label: 'Order high nobles to live at your royal court & send loyal intendants to govern provinces',
+              advisor: 'Advisor: Chief Minister Colbert',
+              deltas: { treasury: -9, stability: -4, legitimacy: +12, tyranny: +6 },
+              explanation: 'Keeping nobles busy with court ceremonies while middle-class intendants run the provinces breaks noble independence and strengthens royal centralization.'
+            },
+            {
+              label: 'Send royal soldiers to seize rebel noble lands & raise land taxes immediately',
+              advisor: 'Advisor: Marshal of the Royal Guard',
+              deltas: { treasury: +11, stability: -15, legitimacy: +7, tyranny: +14 },
+              explanation: 'Taking noble estates brings quick gold into the treasury, but angry lords and frightened villagers stir up unrest across the countryside.'
+            },
+            {
+              label: 'Let the noble Second Estate keep its medieval tax exemptions in return for loyalty oaths',
+              advisor: 'Advisor: Duke of the Royal Council',
+              deltas: { treasury: -13, stability: +11, legitimacy: -9, tyranny: -5 },
+              explanation: 'Protecting noble tax privileges avoids immediate conflict, yet leaves the crown short of money and weakens your authority over the estates.'
+            }
+          ]
+        },
+        era2: {
+          title: 'The Palace of Versailles & The Edict of Nantes',
+          category: 'Era II • Sun King Grandeur & Faith',
+          scene: 'palace',
+          isUnique: true,
+          description: 'Your glittering Palace of Versailles amazes foreign ambassadors, but building costs are climbing rapidly. Meanwhile, Catholic leaders urge you to cancel the Edict of Nantes and end religious freedom for French Protestant Huguenots.',
+          quote: '“One king, one law, one faith.”',
+          quoteSource: 'Royal Motto of Louis XIV’s Court, 1685',
+          choices: [
+            {
+              label: 'Finish the Hall of Mirrors & cancel the Edict of Nantes to enforce one Catholic faith',
+              advisor: 'Advisor: Royal Court Bishop',
+              deltas: { treasury: -16, stability: -13, legitimacy: +16, tyranny: +15 },
+              explanation: 'Versailles becomes Europe’s most famous palace and Catholic leaders praise your piety, but 200,000 skilled Huguenot artisans flee France, hurting trade and peace.'
+            },
+            {
+              label: 'Control palace spending & allow Huguenots to worship quietly in private',
+              advisor: 'Advisor: Royal Trade Inspector',
+              deltas: { treasury: -8, stability: +5, legitimacy: +4, tyranny: -3 },
+              explanation: 'Keeping skilled Huguenot weavers and merchants in France protects tax income and peace, though strict bishops criticize your compromise.'
+            },
+            {
+              label: 'Pause Versailles construction completely to pay off royal war debts',
+              advisor: 'Advisor: Treasury Auditor',
+              deltas: { treasury: +10, stability: +2, legitimacy: -13, tyranny: -4 },
+              explanation: 'Saving money steadies the budget, yet without grand court spectacles, ambitious nobles drift back to their home provinces.'
+            }
+          ]
+        }
+      },
+
+      peter_great: {
+        era1: {
+          title: 'The Grand Embassy & The Boyar Beard Tax',
+          category: 'Era I • Russian Westernization',
+          scene: 'army',
+          isUnique: true,
+          description: 'After visiting modern shipyards and factories in Holland and England, you want to modernize Russia quickly. However, traditional boyars wear long robes and beards and resist Western science and army drills.',
+          quote: '“I wish to see my subjects become modern Europeans, not remain trapped in the past.”',
+          quoteSource: 'Decree of Tsar Peter I, 1698',
+          choices: [
+            {
+              label: 'Charge a Beard Tax, require Western clothes & create a merit-based Table of Ranks',
+              advisor: 'Advisor: Foreign Naval Engineer',
+              deltas: { treasury: +9, stability: -12, legitimacy: +10, tyranny: +13 },
+              explanation: 'Forcing boyars to shave or pay a tax—and earn rank through government service—modernizes Russia’s elite, though traditionalists fiercely resent the shock.'
+            },
+            {
+              label: 'Open technical & artillery schools first without forcing changes in clothing',
+              advisor: 'Advisor: Academy Scholar',
+              deltas: { treasury: -10, stability: +4, legitimacy: +5, tyranny: +2 },
+              explanation: 'Training young officers in mathematics and navigation builds future strength without sparking immediate cultural riots.'
+            },
+            {
+              label: 'Draft tens of thousands of serfs into lifelong army service at once',
+              advisor: 'Advisor: Field General',
+              deltas: { treasury: -6, stability: -15, legitimacy: +12, tyranny: +15 },
+              explanation: 'Forced conscription builds a huge army quickly, but peasant villages erupt in anger as families lose their workers forever.'
+            }
+          ]
+        },
+        era2: {
+          title: 'Building St. Petersburg: Window to the West',
+          category: 'Era II • Imperial Capital on the Baltic',
+          scene: 'navy',
+          isUnique: true,
+          description: 'After winning land on the Baltic Sea, you plan a new stone capital—St. Petersburg—to connect Russia to European trade and naval power. However, the swampy land is freezing, muddy, and full of disease.',
+          quote: '“Here we shall cut a window through into Europe.”',
+          quoteSource: 'Tsar Peter the Great at the founding of St. Petersburg, 1703',
+          choices: [
+            {
+              label: 'Force serfs to drain the swamps & ban stone building anywhere else in Russia',
+              advisor: 'Advisor: Imperial Governor',
+              deltas: { treasury: -13, stability: -14, legitimacy: +16, tyranny: +14 },
+              explanation: 'St. Petersburg rises as a stunning European-style capital, but tens of thousands of serfs die in the marshes, deepening popular anger.'
+            },
+            {
+              label: 'Tax Baltic merchant guilds & hire paid foreign builders for steady progress',
+              advisor: 'Advisor: Port Customs Master',
+              deltas: { treasury: -15, stability: +3, legitimacy: +9, tyranny: +3 },
+              explanation: 'Paying skilled workers avoids a serf revolt, though importing stone and architects drains the royal treasury.'
+            },
+            {
+              label: 'Place the Russian Orthodox Church under a state-run Holy Synod',
+              advisor: 'Advisor: State Procurator',
+              deltas: { treasury: +10, stability: -10, legitimacy: +5, tyranny: +10 },
+              explanation: 'Ending the independent Church leadership gives the autocrat control over church lands and sermons, upsetting devout believers.'
+            }
+          ]
+        }
+      },
+
+      philip_ii: {
+        era1: {
+          title: 'The Paper King of El Escorial',
+          category: 'Era I • Habsburg Centralization',
+          scene: 'taxes',
+          isUnique: true,
+          description: 'Your global empire stretches from Spain and the Netherlands to Mexico and Peru. Local assemblies guard their old regional rights while silver bullion arrives across the ocean.',
+          quote: '“Time and I are a match for any two others.”',
+          quoteSource: 'Favorite motto of King Philip II of Spain',
+          choices: [
+            {
+              label: 'Require every province to send all reports to your desk in El Escorial for royal approval',
+              advisor: 'Advisor: Royal Secretary of State',
+              deltas: { treasury: +6, stability: -7, legitimacy: +11, tyranny: +7 },
+              explanation: 'Your paper bureaucracy gives you total oversight, though waiting months for letters slows down responses to distant problems.'
+            },
+            {
+              label: 'Increase sales taxes across Castile & the wealthy Dutch trading cities',
+              advisor: 'Advisor: Royal Tax Collector',
+              deltas: { treasury: +14, stability: -14, legitimacy: +3, tyranny: +12 },
+              explanation: 'Higher taxes bring immediate gold to Madrid, yet Dutch merchants and Spanish townspeople protest heavy financial pressure.'
+            },
+            {
+              label: 'Honor local provincial charters in exchange for voluntary regional grants',
+              advisor: 'Advisor: Viceroy of Aragon',
+              deltas: { treasury: -11, stability: +10, legitimacy: -7, tyranny: -4 },
+              explanation: 'Respecting local traditions keeps peace in Aragon and the Netherlands, though it limits your absolute power to tax.'
+            }
+          ]
+        },
+        era2: {
+          title: 'The Counter-Reformation & The Spanish Armada',
+          category: 'Era II • Defender of the Catholic Faith',
+          scene: 'navy',
+          isUnique: true,
+          description: 'Protestant rebels in the Netherlands are fighting Spanish rule with secret help from England, whose sea captains raid Spanish treasure galleons. Church leaders urge you to crush heresy by force.',
+          quote: '“I would rather lose all my lands and a hundred lives than rule over heretics.”',
+          quoteSource: 'King Philip II, 1566',
+          choices: [
+            {
+              label: 'Launch the Great Armada of galleons against England & crush Dutch rebels harshly',
+              advisor: 'Advisor: Grand Admiral of the Fleet',
+              deltas: { treasury: -19, stability: -12, legitimacy: +16, tyranny: +14 },
+              explanation: 'You stand as the bold champion of the Counter-Reformation, yet fierce storms and English ships destroy your fleet and empty Spain’s silver reserves.'
+            },
+            {
+              label: 'Guard Atlantic silver convoys & expand the Spanish Inquisition at home',
+              advisor: 'Advisor: Inquisitor General',
+              deltas: { treasury: +5, stability: -11, legitimacy: +11, tyranny: +11 },
+              explanation: 'Armed escorts protect New World bullion and enforce strict Catholic unity, though fear of the Inquisition chills trade and daily life.'
+            },
+            {
+              label: 'Sign a temporary truce in the Netherlands to let Spain’s economy recover',
+              advisor: 'Advisor: Royal Mint Treasurer',
+              deltas: { treasury: +9, stability: +8, legitimacy: -14, tyranny: -5 },
+              explanation: 'Pausing expensive foreign wars saves Spain from bankruptcy, though zealous clergy accuse you of weakening the Catholic cause.'
+            }
+          ]
+        }
+      },
+
+      louis_viii: {
+        era1: {
+          title: 'Taming the Feudal Barons of Western France',
+          category: 'Era I • Capetian Statebuilding',
+          scene: 'army',
+          isUnique: true,
+          description: 'Powerful feudal lords in western France hold large lands linked to the English king. They collect their own road tolls and ignore royal baillis sent from Paris.',
+          quote: '“The King of France shall no longer be equal to his vassals, but sovereign over all.”',
+          quoteSource: 'Capetian Royal Chronicle, 1224',
+          choices: [
+            {
+              label: 'Lead royal knights to capture key ports & appoint salaried royal baillis',
+              advisor: 'Advisor: Constable of France',
+              deltas: { treasury: +7, stability: -7, legitimacy: +12, tyranny: +7 },
+              explanation: 'Seizing Atlantic ports weakens English influence and brings trade customs directly into the royal treasury.'
+            },
+            {
+              label: 'Tear down rebel barons’ castles & collect heavy war fees across their lands',
+              advisor: 'Advisor: Siege Master',
+              deltas: { treasury: +13, stability: -14, legitimacy: +8, tyranny: +13 },
+              explanation: 'Destroying private fortresses proves royal supremacy, though angry barons plot revenge in secret.'
+            },
+            {
+              label: 'Grant self-governing charters to merchant towns in exchange for annual royal taxes',
+              advisor: 'Advisor: Provost of Paris',
+              deltas: { treasury: +8, stability: +7, legitimacy: -5, tyranny: -2 },
+              explanation: 'Wealthy townspeople gladly pay royal taxes for protection from local lords, giving the crown loyal urban allies.'
+            }
+          ]
+        },
+        era2: {
+          title: 'The Royal Crusade into Southern Languedoc',
+          category: 'Era II • Crown & Faith United',
+          scene: 'religion',
+          isUnique: true,
+          description: 'The rich southern province of Languedoc acts almost like an independent country and shelters religious groups opposed by the Pope. A royal crusade south could bring Mediterranean lands under your crown.',
+          quote: '“By the sword of the King and the blessing of the Church, the realm shall be united.”',
+          quoteSource: 'Chronicle of the Expedition to Avignon, 1226',
+          choices: [
+            {
+              label: 'March south with the royal army to annex Languedoc & enforce Catholic orthodoxy',
+              advisor: 'Advisor: Papal Legate',
+              deltas: { treasury: -15, stability: -11, legitimacy: +16, tyranny: +12 },
+              explanation: 'Capturing Avignon and Languedoc doubles the royal domain and unites the crown with the Church, though southern cities suffer harsh siege damage.'
+            },
+            {
+              label: 'Combine peaceful preaching missions with negotiated loyalty treaties',
+              advisor: 'Advisor: Abbot of Saint-Denis',
+              deltas: { treasury: -7, stability: +4, legitimacy: +6, tyranny: +1 },
+              explanation: 'Patient diplomacy wins partial obedience from southern counts without exhausting your knights in long sieges.'
+            },
+            {
+              label: 'Collect an emergency crusade tithe from French churches and market towns',
+              advisor: 'Advisor: Royal Chamber Treasurer',
+              deltas: { treasury: +12, stability: -10, legitimacy: -9, tyranny: +9 },
+              explanation: 'Extraordinary war taxes fill your war chest quickly, yet local bishops and farmers complain about the heavy burden.'
+            }
+          ]
+        }
+      }
+    };
+
+    const SHARED_DILEMMAS = {
+      era1_army: {
+        title: 'Building a Professional Standing Army',
+        category: 'Era I • Control of Military Force',
+        scene: 'army',
+        description: 'Depending on feudal knights or hired foreign soldiers leaves your throne weak if nobles refuse to fight. Your war minister wants to build a permanent royal army loyal only to you.',
+        quote: '“A wise ruler must command arms that answer to the crown alone.”',
+        quoteSource: 'Early Modern Statecraft Manual',
+        choices: [
+          {
+            label: 'Create a permanent standing army paid for by a new national hearth tax',
+            advisor: 'Advisor: Minister of War',
+            deltas: { treasury: -12, stability: -10, legitimacy: +14, tyranny: +10 },
+            explanation: 'A disciplined royal army stops noble rebellions fast, though peasants struggle under the taxes needed to pay and house soldiers.'
+          },
+          {
+            label: 'Found royal officer academies so younger nobles serve the crown for salaries',
+            advisor: 'Advisor: Commandant of Cadets',
+            deltas: { treasury: -10, stability: +3, legitimacy: +8, tyranny: +3 },
+            explanation: 'Turning noble sons into trained royal officers channels their ambition into loyal service to the state.'
+          },
+          {
+            label: 'Hire cheap foreign mercenaries only when a war begins',
+            advisor: 'Advisor: Paymaster General',
+            deltas: { treasury: +8, stability: -8, legitimacy: -11, tyranny: -2 },
+            explanation: 'Saving money in peacetime backfires when unpaid mercenaries rob your own villages during delays in pay.'
+          }
+        ]
+      },
+
+      era1_taxes: {
+        title: 'Uniform Taxation & The Royal Audit',
+        category: 'Era I • Fiscal Centralization',
+        scene: 'taxes',
+        description: 'Corrupt private tax collectors keep half the gold they gather, while wealthy regions use old feudal excuses to pay nothing. Your treasury needs steady money to govern.',
+        quote: '“Good taxation plucks the most feathers from the goose with the least amount of hissing.”',
+        quoteSource: 'Jean-Baptiste Colbert, French Finance Minister',
+        choices: [
+          {
+            label: 'Fire private tax collectors & send royal auditors to tax all provinces equally',
+            advisor: 'Advisor: Controller-General of Finances',
+            deltas: { treasury: +13, stability: -12, legitimacy: +7, tyranny: +9 },
+            explanation: 'Direct royal tax collection boosts treasury income, though newly taxed provinces protest losing their old privileges.'
+          },
+          {
+            label: 'Sell hereditary government offices to wealthy merchants',
+            advisor: 'Advisor: Keeper of the Royal Seals',
+            deltas: { treasury: +14, stability: +4, legitimacy: -8, tyranny: +2 },
+            explanation: 'Selling offices raises fast cash and creates loyal middle-class officials, though old noble families look down on them.'
+          },
+          {
+            label: 'Double salt and bread taxes on common peasants while sparing wealthy estates',
+            advisor: 'Advisor: Royal Salt Monopoly Director',
+            deltas: { treasury: +15, stability: -16, legitimacy: -4, tyranny: +15 },
+            explanation: 'Taxing basic daily food brings quick gold, but hungry families riot in market towns.'
+          }
+        ]
+      },
+
+      era1_mercantilism: {
+        title: 'Mercantilism & Royal Trade Monopolies',
+        category: 'Era I • Economic Control',
+        scene: 'navy',
+        description: 'Foreign ships are selling luxury cloth and spices in your ports, draining gold bullion out of your kingdom. Your economic council urges strict mercantilism.',
+        quote: '“The abundance of gold and silver within a state makes the difference in its power.”',
+        quoteSource: 'Jean-Baptiste Colbert, Memorandum on Trade, 1670',
+        choices: [
+          {
+            label: 'Pass high tariffs on foreign imports & fund state-owned royal workshops',
+            advisor: 'Advisor: Superintendent of Manufactures',
+            deltas: { treasury: +9, stability: -6, legitimacy: +9, tyranny: +5 },
+            explanation: 'Protecting home industries keeps bullion inside the kingdom, though consumers pay higher prices for everyday goods.'
+          },
+          {
+            label: 'Sell an exclusive overseas shipping monopoly to a royal trading company',
+            advisor: 'Advisor: Lord of the Admiralty',
+            deltas: { treasury: +9, stability: -9, legitimacy: +5, tyranny: +7 },
+            explanation: 'Monopoly fees enrich the crown, yet independent port merchants anger at being shut out of ocean trade.'
+          },
+          {
+            label: 'Lower tariffs to let cheap foreign grain and cloth enter freely',
+            advisor: 'Advisor: Mayor of the Port Guild',
+            deltas: { treasury: -13, stability: +9, legitimacy: -7, tyranny: -4 },
+            explanation: 'Affordable goods please city shoppers, but local workshops close and silver flows to rival countries.'
+          }
+        ]
+      },
+
+      era2_arts: {
+        title: 'Royal Academies & State Art',
+        category: 'Era II • Cultural Power',
+        scene: 'palace',
+        description: 'Painters, writers, and architects shape how subjects and foreign kings view your reign. Your ministers propose Royal Academies of Art and Science funded by the crown.',
+        quote: '“A monarch’s majesty shines in every monument and painting created for his glory.”',
+        quoteSource: 'Bishop Jacques-Bénigne Bossuet',
+        choices: [
+          {
+            label: 'Fund grand Baroque painters, palaces & academies that glorify Divine Right',
+            advisor: 'Advisor: Director of Royal Buildings',
+            deltas: { treasury: -11, stability: +5, legitimacy: +14, tyranny: +4 },
+            explanation: 'Magnificent royal portraits and public monuments awe the population and strengthen your image as a supreme ruler.'
+          },
+          {
+            label: 'Censor all books and plays & arrest writers who mock the royal court',
+            advisor: 'Advisor: Lieutenant General of Police',
+            deltas: { treasury: -4, stability: -11, legitimacy: +7, tyranny: +12 },
+            explanation: 'Strict censorship stops public jokes about the crown, yet drives clever writers into secret resistance.'
+          },
+          {
+            label: 'Cancel royal art spending to keep gold locked in the treasury',
+            advisor: 'Advisor: Chief Accountant',
+            deltas: { treasury: +7, stability: +1, legitimacy: -12, tyranny: -3 },
+            explanation: 'Saving gold helps the budget, but rival European courts outshine your kingdom in prestige.'
+          }
+        ]
+      },
+
+      era2_religion: {
+        title: 'Church, Altar & Throne',
+        category: 'Era II • Divine Right & Religion',
+        scene: 'religion',
+        description: 'Religious minorities ask for permission to worship freely, while leaders of the official state Church demand one unified religion under your Divine Right.',
+        quote: '“Royal power is sacred and absolute; to rebel against the prince is to resist God.”',
+        quoteSource: 'Bishop Jacques-Bénigne Bossuet, 1679',
+        choices: [
+          {
+            label: 'Enforce one official state religion & shut down minority churches',
+            advisor: 'Advisor: Archbishop of the Realm',
+            deltas: { treasury: -5, stability: -14, legitimacy: +15, tyranny: +13 },
+            explanation: 'Uniting church and crown delights orthodox clergy, yet persecuted minorities rebel or leave the country with their wealth.'
+          },
+          {
+            label: 'Appoint loyal bishops yourself while quietly tolerating private worship',
+            advisor: 'Advisor: Royal Chancellor',
+            deltas: { treasury: +4, stability: +3, legitimacy: +5, tyranny: +2 },
+            explanation: 'Controlling church appointments keeps clergy loyal while quiet toleration prevents religious civil war.'
+          },
+          {
+            label: 'Announce full religious freedom for all groups across the kingdom',
+            advisor: 'Advisor: Ambassador to Northern Europe',
+            deltas: { treasury: +5, stability: +10, legitimacy: -15, tyranny: -6 },
+            explanation: 'Merchants and minorities celebrate peace, but powerful church leaders accuse you of breaking your sacred coronation oath.'
+          }
+        ]
+      },
+
+      era2_war: {
+        title: 'Dynastic War for Border Territory',
+        category: 'Era II • European Power Politics',
+        scene: 'army',
+        description: 'A neighboring rival king claims a rich border province and threatens your trade routes. Your generals urge a major military campaign to expand your empire.',
+        quote: '“Glory on the battlefield makes a monarch immortal across Europe.”',
+        quoteSource: 'Royal War Council Dispatch, 17th Century',
+        choices: [
+          {
+            label: 'Launch a full-scale invasion paid for by emergency war loans & taxes',
+            advisor: 'Advisor: Supreme Army Commander',
+            deltas: { treasury: -17, stability: -11, legitimacy: +16, tyranny: +11 },
+            explanation: 'Winning new border lands boosts royal glory, yet heavy war debts and casualties strain families back home.'
+          },
+          {
+            label: 'Build strong border fortresses & fight only a cautious defensive war',
+            advisor: 'Advisor: Chief Fortification Engineer',
+            deltas: { treasury: -10, stability: +2, legitimacy: +6, tyranny: +3 },
+            explanation: 'Modern star-shaped fortresses protect the frontier without bankrupting the treasury or exhausting the army.'
+          },
+          {
+            label: 'Give up the disputed border land to avoid the high cost of war',
+            advisor: 'Advisor: Court Diplomat',
+            deltas: { treasury: +8, stability: +3, legitimacy: -16, tyranny: -4 },
+            explanation: 'Avoiding war saves money, but generals and nobles view the retreat as a humiliating blow to royal honor.'
+          }
+        ]
+      },
+
+      era3_voltaire: {
+        title: 'Voltaire & The Underground Printing Press',
+        category: 'Era III • Enlightenment Challenge I',
+        scene: 'enlightenment',
+        description: 'In busy coffeehouses and salons, Enlightenment philosophes inspired by Voltaire mock censorship and unfair royal arrests. Secret presses print thousands of pamphlets criticizing absolute power.',
+        quote: '“I do not agree with what you say, but I will defend to the death your right to say it.”',
+        quoteSource: 'Voltaire, Enlightenment Philosophe',
+        choices: [
+          {
+            label: 'Send secret police to smash printing presses & imprison writers without trial',
+            advisor: 'Advisor: Chief Royal Censor',
+            deltas: { treasury: -6, stability: -14, legitimacy: +5, tyranny: +14 },
+            explanation: 'Banning books only makes them more popular in secret, convincing citizens that the king fears free thought.'
+          },
+          {
+            label: 'Act as an "Enlightened Ruler": reform unfair courts & schools while keeping royal control',
+            advisor: 'Advisor: Royal Academy Reformer',
+            deltas: { treasury: -10, stability: +6, legitimacy: +3, tyranny: -4 },
+            explanation: 'Improving schools and legal fairness wins over moderate thinkers without giving up your throne.'
+          },
+          {
+            label: 'End royal censorship completely & allow free newspapers across the kingdom',
+            advisor: 'Advisor: Salon Philosopher',
+            deltas: { treasury: 0, stability: +9, legitimacy: -14, tyranny: -8 },
+            explanation: 'Writers celebrate freedom of speech, yet uncensored newspapers immediately attack the idea of Divine Right.'
+          }
+        ]
+      },
+
+      era3_locke: {
+        title: 'John Locke & The Tax Crisis',
+        category: 'Era III • Enlightenment Challenge II',
+        scene: 'enlightenment',
+        description: 'Old war debts now consume half your budget! Lawyers quoting John Locke argue that rulers cannot tax people’s property without the consent of a representative assembly.',
+        quote: '“When rulers take away the property of the people without consent, they put themselves at war with the people.”',
+        quoteSource: 'John Locke, Second Treatise of Government (1689)',
+        choices: [
+          {
+            label: 'Cancel debt payments & force noble estates to pay emergency taxes by royal edict',
+            advisor: 'Advisor: Emergency Fiscal Minister',
+            deltas: { treasury: +14, stability: -14, legitimacy: -5, tyranny: +12 },
+            explanation: 'Refusing to pay loans and taxing nobles saves cash today, but ruins royal credit and unites elites against you.'
+          },
+          {
+            label: 'Appoint a panel of legal experts to cut waste & modernize tax collection fairly',
+            advisor: 'Advisor: Senior Royal Jurist',
+            deltas: { treasury: +6, stability: +3, legitimacy: -4, tyranny: -2 },
+            explanation: 'Rational legal reforms ease the budget crisis without surrendering your sovereign authority.'
+          },
+          {
+            label: 'Call a national representative assembly to vote on new taxes',
+            advisor: 'Advisor: Deputy of the Third Estate',
+            deltas: { treasury: +10, stability: +11, legitimacy: -16, tyranny: -9 },
+            explanation: 'Elected representatives restore financial trust, yet immediately demand limits on absolute monarchy.'
+          }
+        ]
+      },
+
+      era3_harvest: {
+        title: 'The Great Frost & Bread Riots',
+        category: 'Era III • Food & Economic Crisis',
+        scene: 'revolution',
+        description: 'Freezing winter storms ruin the wheat harvest. Bread prices triple overnight, hungry crowds march on royal grain storehouses, and the treasury is already tight.',
+        quote: '“When the people have nothing left to eat, they will rise against the rich.”',
+        quoteSource: 'Jean-Jacques Rousseau, Enlightenment Thinker',
+        choices: [
+          {
+            label: 'Open royal storehouses & spend treasury gold to lower bread prices for everyone',
+            advisor: 'Advisor: Minister of Public Granaries',
+            deltas: { treasury: -17, stability: +13, legitimacy: +6, tyranny: -5 },
+            explanation: 'Feeding starving towns empties the treasury at a perilous time, yet calms angry crowds in the streets.'
+          },
+          {
+            label: 'Order royal cavalry to clear bread rioters from the streets by force',
+            advisor: 'Advisor: Garrison Commander',
+            deltas: { treasury: -4, stability: -16, legitimacy: -10, tyranny: +15 },
+            explanation: 'Soldiers disperse the crowds today, but attacking hungry families turns peaceful subjects into revolutionaries.'
+          },
+          {
+            label: 'Pass an emergency luxury tax on noble carriages & silk to import foreign grain',
+            advisor: 'Advisor: Urban Trade Inspector',
+            deltas: { treasury: -8, stability: +6, legitimacy: -6, tyranny: +2 },
+            explanation: 'Taxing luxury goods buys enough imported wheat to prevent famine while testing noble patience.'
+          }
+        ]
+      },
+
+      era3_revolution: {
+        title: 'Barricades in the Capital: The Constitution Crisis',
+        category: 'Era III • Final Showdown of the Old Regime',
+        scene: 'revolution',
+        description: 'Armed citizens and reform leaders surround the royal palace, demanding a written constitution that permanently limits royal power and protects citizen rights.',
+        quote: '“Sire, this is not a small revolt—it is a revolution!”',
+        quoteSource: 'Royal Messenger at the Palace Gates, 1789',
+        choices: [
+          {
+            label: 'Order loyal guard regiments to crush the uprising & preserve pure absolutism',
+            advisor: 'Advisor: Commander of the Royal Guard',
+            deltas: { treasury: -10, stability: -15, legitimacy: +14, tyranny: +16 },
+            explanation: 'Using military force defends absolute rule—succeeding only if your stability was high enough to survive the violent shock.'
+          },
+          {
+            label: 'Issue a Royal Charter of Rights while keeping control of the army & veto power',
+            advisor: 'Advisor: Moderate Constitutional Minister',
+            deltas: { treasury: -8, stability: +9, legitimacy: -6, tyranny: -8 },
+            explanation: 'Granting basic legal rights while keeping supreme executive command stabilizes your throne in a changing world.'
+          },
+          {
+            label: 'Accept a Constitutional Monarchy & share lawmaking power with an elected Parliament',
+            advisor: 'Advisor: Leader of the National Assembly',
+            deltas: { treasury: +3, stability: +14, legitimacy: -17, tyranny: -14 },
+            explanation: 'Your dynasty survives peacefully, though unchecked absolute monarchy comes to an end.'
+          }
+        ]
+      }
+    };
+
+    /* ---------------------------------------------------------------------
+       5. SIMULATION STATE, 4-MONARCH CAMPAIGN TRACKER & ENGINE
+       --------------------------------------------------------------------- */
+    const gameState = {
+      studentFirstName: '',
+      studentLastName: '',
+      monarch: null,
+      crowns: 5,
+      maxCrowns: 5,
+      turn: 1,
+      maxTurns: 12,
+      stats: {
+        treasury: 50,
+        stability: 50,
+        legitimacy: 50,
+        tyranny: 20
+      },
+      deck: [],
+      currentCard: null,
+      decisionHistory: [],
+      isGameOver: false,
+      didWin: false,
+      defeatReason: '',
+      // Tracks progress across all 4 monarchs ('unplayed' | 'won' | 'failed')
+      campaign: {
+        louis_xiv: 'unplayed',
+        peter_great: 'unplayed',
+        philip_ii: 'unplayed',
+        louis_viii: 'unplayed'
+      }
+    };
+
+    function getCampaignStats() {
+      const ids = MONARCHS.map((m) => m.id);
+      const playedCount = ids.filter((id) => gameState.campaign[id] !== 'unplayed').length;
+      const wonIds = ids.filter((id) => gameState.campaign[id] === 'won');
+      const wonCount = wonIds.length;
+      const decreeUnlocked = playedCount === 4 && wonCount >= 3;
+      return { playedCount, wonCount, wonIds, decreeUnlocked };
+    }
+
+    function renderCampaignTracker(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      container.innerHTML = MONARCHS.map((m) => {
+        const status = gameState.campaign[m.id] || 'unplayed';
+        let badgeHTML = '<span class="text-[11px] font-semibold text-slate-400">Not Yet Ruled</span>';
+        let borderClass = 'border-slate-700/80 bg-slate-900/80';
+
+        if (status === 'won') {
+          badgeHTML = '<span class="text-[11px] font-bold text-emerald-300">👑 Reign Conquered</span>';
+          borderClass = 'border-emerald-500/60 bg-emerald-950/35';
+        } else if (status === 'failed') {
+          badgeHTML = '<span class="text-[11px] font-bold text-rose-300">💔 Fallen (Retry Available)</span>';
+          borderClass = 'border-rose-500/55 bg-rose-950/30';
+        }
+
+        return `
+          <div class="rounded-lg border p-2.5 flex items-center gap-2.5 ${borderClass}">
+            <div class="w-8 h-8 rounded-md bg-slate-950 border border-amber-500/30 flex items-center justify-center shrink-0">
+              ${SVG_CRESTS[m.id] || ''}
+            </div>
+            <div class="min-w-0">
+              <div class="font-display font-bold text-xs text-white truncate">${escapeHTML(m.name)}</div>
+              <div>${badgeHTML}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Update Setup Screen Campaign Summary & Decree Button if unlocked
+      const { playedCount, wonCount, decreeUnlocked } = getCampaignStats();
+      const summaryEl = document.getElementById('campaignStatusSummary');
+      const setupPdfBtn = document.getElementById('btnSetupDownloadDecree');
+
+      if (summaryEl) {
+        if (decreeUnlocked) {
+          summaryEl.innerHTML = `<strong class="text-emerald-300">Royal Mastery Achieved!</strong> You played all 4 monarchs and won <strong>${wonCount} of 4</strong> reigns. Download your Royal Decree PDF now!`;
+        } else if (playedCount === 4 && wonCount < 3) {
+          summaryEl.innerHTML = `<strong class="text-amber-300">${playedCount} of 4 Played • ${wonCount} Won:</strong> You need at least <strong>3 victories</strong> to unlock the Royal Decree. Retry a fallen monarch below!`;
+        } else {
+          summaryEl.textContent = `${playedCount} of 4 Monarchs Played • ${wonCount} Victories (Play all 4 monarchs and win at least 3 to unlock your Royal Decree PDF)`;
+        }
+      }
+
+      if (setupPdfBtn) {
+        if (decreeUnlocked) setupPdfBtn.classList.remove('hidden');
+        else setupPdfBtn.classList.add('hidden');
+      }
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function clampStat(val) {
+      return Math.max(0, Math.min(100, Math.round(val)));
+    }
+
+    /* Render the 4 Monarch Selection Cards on the Setup Screen */
+    function renderMonarchSelection() {
+      renderCampaignTracker('setupCampaignGrid');
+      const grid = document.getElementById('monarchGrid');
+      if (!grid) return;
+
+      grid.innerHTML = MONARCHS.map((m) => {
+        const crestSVG = SVG_CRESTS[m.id] || '';
+        const fallbackSVG = getFallbackPortraitSVG(m.id);
+        const status = gameState.campaign[m.id] || 'unplayed';
+
+        let statusRibbon = '';
+        let btnLabel = `Ascend the Throne as ${escapeHTML(m.name)} →`;
+        if (status === 'won') {
+          statusRibbon = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/25 text-emerald-200 border border-emerald-400/50">👑 Reign Won</span>';
+          btnLabel = `Replay Reign as ${escapeHTML(m.name)} →`;
+        } else if (status === 'failed') {
+          statusRibbon = '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/25 text-rose-200 border border-rose-400/50">💔 Fallen — Retry</span>';
+          btnLabel = `Retry Reign as ${escapeHTML(m.name)} →`;
+        }
+
+        return `
+          <article class="gilded-card gilded-card-hover rounded-2xl overflow-hidden flex flex-col justify-between">
+            <div>
+              <!-- Primary Source Portrait Header -->
+              <div class="relative h-64 sm:h-72 bg-slate-950 border-b border-amber-500/35 overflow-hidden">
+                <img src="${m.imageUrl}" alt="Primary source portrait of ${escapeHTML(m.name)}"
+                  class="w-full h-full object-cover object-top"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                <div style="display:none;" class="w-full h-full">${fallbackSVG}</div>
+
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent"></div>
+
+                <!-- Heraldic Crest Badge -->
+                <div class="absolute top-3 right-3 w-12 h-12 rounded-xl bg-slate-950/85 border border-amber-400/50 flex items-center justify-center shadow-lg">
+                  ${crestSVG}
+                </div>
+
+                <!-- Monarch Title Overlay -->
+                <div class="absolute bottom-3 left-4 right-4">
+                  <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500/25 text-amber-200 border border-amber-400/40">
+                      ${escapeHTML(m.epithet)}
+                    </span>
+                    ${statusRibbon}
+                  </div>
+                  <h3 class="font-display text-2xl sm:text-3xl font-black text-white leading-tight">
+                    ${escapeHTML(m.name)}
+                  </h3>
+                  <p class="text-xs sm:text-sm text-amber-200/90 font-medium">${escapeHTML(m.title)}</p>
+                </div>
+              </div>
+
+              <!-- Primary Source Citation & Glossed ESL Historical Synopsis -->
+              <div class="p-5 sm:p-6 space-y-4">
+                <div class="text-[11px] text-slate-400 italic border-l-2 border-amber-500/50 pl-2.5">
+                  Primary Source: ${escapeHTML(m.imageCaption)}
+                </div>
+
+                <p class="font-serif text-base sm:text-[17px] text-slate-200 leading-relaxed">
+                  ${glossText(m.synopsis)}
+                </p>
+
+                <!-- Starting Resource Meters Preview -->
+                <div class="grid grid-cols-3 gap-2 pt-2">
+                  <div class="bg-slate-950/85 border border-amber-500/30 rounded-lg p-2 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">💰 Treasury</div>
+                    <div class="font-display text-lg font-extrabold text-white">${m.stats.treasury}</div>
+                  </div>
+                  <div class="bg-slate-950/85 border border-emerald-500/30 rounded-lg p-2 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-emerald-300 font-bold">⚖️ Stability</div>
+                    <div class="font-display text-lg font-extrabold text-white">${m.stats.stability}</div>
+                  </div>
+                  <div class="bg-slate-950/85 border border-purple-500/30 rounded-lg p-2 text-center">
+                    <div class="text-[10px] uppercase tracking-wider text-purple-300 font-bold">✝️ Legitimacy</div>
+                    <div class="font-display text-lg font-extrabold text-white">${m.stats.legitimacy}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Footer -->
+            <div class="px-5 pb-5 sm:px-6 sm:pb-6 pt-1">
+              <div class="text-xs text-amber-300/90 font-medium mb-3 flex items-center gap-1.5">
+                <span>👑</span>
+                <span>${escapeHTML(m.trait)}</span>
+              </div>
+              <button type="button" onclick="startGameWithMonarch('${m.id}')"
+                class="w-full py-3.5 px-5 rounded-xl btn-royal-gold font-display text-sm sm:text-base uppercase tracking-wider cursor-pointer">
+                ${btnLabel}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /* Build the 12-Turn Chronological Deck Across 3 Historical Eras */
+    function buildDeckForMonarch(monarchId) {
+      const unique = MONARCH_UNIQUE_DILEMMAS[monarchId] || MONARCH_UNIQUE_DILEMMAS.louis_xiv;
+      return [
+        // Era I: Consolidation & Centralization (Turns 1–4)
+        unique.era1,
+        SHARED_DILEMMAS.era1_army,
+        SHARED_DILEMMAS.era1_taxes,
+        SHARED_DILEMMAS.era1_mercantilism,
+        // Era II: Grandeur, Faith & Empire (Turns 5–8)
+        unique.era2,
+        SHARED_DILEMMAS.era2_arts,
+        SHARED_DILEMMAS.era2_religion,
+        SHARED_DILEMMAS.era2_war,
+        // Era III: The Enlightenment & Revolutionary Crisis (Turns 9–12)
+        SHARED_DILEMMAS.era3_voltaire,
+        SHARED_DILEMMAS.era3_locke,
+        SHARED_DILEMMAS.era3_harvest,
+        SHARED_DILEMMAS.era3_revolution
+      ];
+    }
+
+    /* Validate Student Name and Initialize Gameplay */
+    function startGameWithMonarch(monarchId) {
+      const firstInput = document.getElementById('studentFirstName');
+      const lastInput = document.getElementById('studentLastName');
+      const alertBox = document.getElementById('nameValidationAlert');
+      const alertText = document.getElementById('nameValidationText');
+
+      const firstName = (firstInput ? firstInput.value : '').trim();
+      const lastName = (lastInput ? lastInput.value : '').trim();
+
+      if (!firstName || !lastName) {
+        if (alertText) {
+          alertText.textContent = !firstName && !lastName
+            ? 'Please enter both your First Name and Last Name in the Royal Scribe Registry above.'
+            : (!firstName ? 'Please enter your First Name before ascending the throne.' : 'Please enter your Last Name before ascending the throne.');
+        }
+        if (alertBox) {
+          alertBox.classList.remove('hidden');
+          alertBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        if (!firstName && firstInput) firstInput.focus();
+        else if (lastInput) lastInput.focus();
+        return;
+      }
+
+      if (alertBox) alertBox.classList.add('hidden');
+
+      const chosenMonarch = MONARCHS.find((m) => m.id === monarchId) || MONARCHS[0];
+      gameState.studentFirstName = firstName;
+      gameState.studentLastName = lastName;
+      gameState.monarch = chosenMonarch;
+      gameState.crowns = 5;
+      gameState.turn = 1;
+      gameState.stats = {
+        treasury: chosenMonarch.stats.treasury,
+        stability: chosenMonarch.stats.stability,
+        legitimacy: chosenMonarch.stats.legitimacy,
+        tyranny: chosenMonarch.stats.tyranny
+      };
+      gameState.deck = buildDeckForMonarch(chosenMonarch.id);
+      gameState.decisionHistory = [];
+      gameState.isGameOver = false;
+      gameState.didWin = false;
+      gameState.defeatReason = '';
+
+      // Populate HUD Identity
+      document.getElementById('hudCrest').innerHTML = SVG_CRESTS[chosenMonarch.id] || '';
+      document.getElementById('hudMonarchName').textContent = chosenMonarch.name;
+      document.getElementById('hudMonarchRealm').textContent = chosenMonarch.realm;
+      document.getElementById('hudStudentName').textContent = `${firstName} ${lastName}`;
+
+      // Switch Screens
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+
+      playSoundEffect('start');
+      renderCrownsUI(0);
+      updateMetersUI();
+      renderCurrentDilemma();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Render the 5 Crowns of Royal Control */
+    function renderCrownsUI(lostThisTurn = 0) {
+      const container = document.getElementById('crownsContainer');
+      const label = document.getElementById('crownStatusLabel');
+      if (!container || !label) return;
+
+      label.textContent = `${gameState.crowns} of ${gameState.maxCrowns} Crowns Intact`;
+      label.className = gameState.crowns <= 2
+        ? 'text-xs text-red-400 font-bold'
+        : 'text-xs text-slate-300 font-medium';
+
+      let html = '';
+      for (let i = 1; i <= gameState.maxCrowns; i++) {
+        const isActive = i <= gameState.crowns;
+        const justShattered = lostThisTurn > 0 && i > gameState.crowns && i <= gameState.crowns + lostThisTurn;
+        const stateClass = isActive ? 'crown-active text-amber-400' : (justShattered ? 'animate-crown-shatter text-red-500' : 'crown-lost text-slate-500');
+
+        html += `
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 border ${isActive ? 'border-amber-400/60' : 'border-slate-700'}"
+            title="${isActive ? 'Crown of Control Intact' : 'Crown Shattered'}">
+            <svg class="w-5 h-5 ${stateClass}" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2 19h20v2H2v-2zm1.5-2L2 7l5.5 4L12 4l4.5 7L22 7l-1.5 10h-17z"/>
+            </svg>
+          </span>
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    /* Update Treasury, Stability, Legitimacy, Era & Tyranny Meters */
+    function updateMetersUI() {
+      const pillars = [
+        { key: 'treasury', valId: 'valTreasury', barId: 'barTreasury', badgeId: 'badgeTreasury', cardId: 'cardTreasury' },
+        { key: 'stability', valId: 'valStability', barId: 'barStability', badgeId: 'badgeStability', cardId: 'cardStability' },
+        { key: 'legitimacy', valId: 'valLegitimacy', barId: 'barLegitimacy', badgeId: 'badgeLegitimacy', cardId: 'cardLegitimacy' }
+      ];
+
+      pillars.forEach((p) => {
+        const val = gameState.stats[p.key];
+        const valEl = document.getElementById(p.valId);
+        const barEl = document.getElementById(p.barId);
+        const badgeEl = document.getElementById(p.badgeId);
+        const cardEl = document.getElementById(p.cardId);
+
+        if (valEl) valEl.textContent = val;
+        if (barEl) barEl.style.width = `${val}%`;
+
+        if (badgeEl && cardEl) {
+          if (val < 30) {
+            badgeEl.textContent = 'CRITICAL (<30)';
+            badgeEl.className = 'block text-[10px] font-bold uppercase tracking-wider text-red-400';
+            cardEl.classList.add('meter-critical');
+          } else if (val < 38) {
+            badgeEl.textContent = 'FRAGILE (<38)';
+            badgeEl.className = 'block text-[10px] font-bold uppercase tracking-wider text-amber-400';
+            cardEl.classList.remove('meter-critical');
+          } else {
+            badgeEl.textContent = 'STABLE';
+            badgeEl.className = 'block text-[10px] font-bold uppercase tracking-wider text-emerald-400';
+            cardEl.classList.remove('meter-critical');
+          }
+        }
+      });
+
+      // Era & Turn Badges
+      const eraBadge = document.getElementById('eraBadge');
+      const turnBadge = document.getElementById('turnBadge');
+      const tyrannyEl = document.getElementById('valTyranny');
+      const twistBanner = document.getElementById('eraTwistBanner');
+      const twistText = document.getElementById('eraTwistText');
+
+      if (turnBadge) turnBadge.textContent = `Turn ${gameState.turn} of ${gameState.maxTurns}`;
+      if (tyrannyEl) tyrannyEl.textContent = `${gameState.stats.tyranny}%`;
+
+      if (eraBadge) {
+        if (gameState.turn <= 4) {
+          eraBadge.textContent = 'Era I: Consolidation & Centralization';
+          eraBadge.className = 'px-3 py-1 rounded-md font-display font-bold uppercase tracking-wider bg-indigo-950 text-indigo-200 border border-indigo-500/40';
+        } else if (gameState.turn <= 8) {
+          eraBadge.textContent = 'Era II: Grandeur, Faith & Empire';
+          eraBadge.className = 'px-3 py-1 rounded-md font-display font-bold uppercase tracking-wider bg-purple-950 text-purple-200 border border-purple-500/40';
+        } else {
+          eraBadge.textContent = 'Era III: Enlightenment & Crisis';
+          eraBadge.className = 'px-3 py-1 rounded-md font-display font-bold uppercase tracking-wider bg-red-950 text-red-200 border border-red-500/50';
+        }
+      }
+
+      if (twistBanner && twistText) {
+        if (gameState.turn >= 9) {
+          twistBanner.classList.remove('hidden');
+          twistText.innerHTML = gameState.stats.tyranny >= 50
+            ? glossText(`High Tyranny Alert (${gameState.stats.tyranny}%): Your harsh rule has angered salons and starving towns! Repressive choices now cause an extra -5 Stability penalty.`)
+            : glossText('Enlightenment philosophes like Voltaire, Locke, and Rousseau question Divine Right in pamphlets while poor harvests strain your realm.');
+        } else {
+          twistBanner.classList.add('hidden');
+        }
+      }
+    }
+
+    /* Render Current Turn Dilemma Card & 3 Policy Choices (No Stat Spoiler Hints!) */
+    function renderCurrentDilemma() {
+      const card = gameState.deck[gameState.turn - 1];
+      gameState.currentCard = card;
+
+      document.getElementById('dilemmaIllustration').innerHTML = getSceneIllustrationSVG(card.scene);
+      document.getElementById('dilemmaCategory').textContent = card.category;
+
+      const uniqueTag = document.getElementById('dilemmaUniqueTag');
+      if (card.isUnique) uniqueTag.classList.remove('hidden');
+      else uniqueTag.classList.add('hidden');
+
+      document.getElementById('dilemmaTitle').textContent = card.title;
+      document.getElementById('dilemmaDescription').innerHTML = glossText(card.description);
+      document.getElementById('dilemmaQuote').innerHTML = glossText(card.quote);
+      document.getElementById('dilemmaQuoteSource').textContent = `— ${card.quoteSource}`;
+
+      // Show Choices, Hide Outcome Panel
+      document.getElementById('choicesContainer').classList.remove('hidden');
+      document.getElementById('outcomeContainer').classList.add('hidden');
+
+      const numerals = ['I', 'II', 'III'];
+      const listEl = document.getElementById('choiceButtonsList');
+      listEl.innerHTML = card.choices.map((c, idx) => `
+        <div class="w-full text-left p-4 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-amber-500/35 hover:border-amber-400 transition-all group shadow">
+          <div class="flex items-start gap-3">
+            <span class="w-7 h-7 rounded-lg bg-amber-500/20 group-hover:bg-amber-400 text-amber-300 group-hover:text-slate-950 font-display font-bold text-xs flex items-center justify-center shrink-0 border border-amber-400/40 transition mt-0.5">
+              ${numerals[idx]}
+            </span>
+            <div class="flex-1 space-y-2">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-amber-400/90">
+                ${escapeHTML(c.advisor || 'Royal Council Proposal')}
+              </div>
+              <div class="font-semibold text-sm sm:text-base text-white leading-snug">
+                ${glossText(c.label)}
+              </div>
+              <div class="pt-1">
+                <button type="button" onclick="selectChoice(${idx})"
+                  class="px-3.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-400 text-amber-200 hover:text-slate-950 font-display font-bold text-xs uppercase tracking-wider border border-amber-400/50 transition cursor-pointer">
+                  Enact Decree ${numerals[idx]} →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Resolve Student Choice, Apply Stricter Crown Thresholds, & Display Outcome */
+    function selectChoice(choiceIndex) {
+      const card = gameState.currentCard;
+      if (!card || !card.choices[choiceIndex]) return;
+
+      const choice = card.choices[choiceIndex];
+      const deltas = { ...choice.deltas };
+      let enlightenmentNote = '';
+
+      // Era III Twist: High Tyranny amplifies public backlash on repressive actions
+      if (gameState.turn >= 9 && gameState.stats.tyranny >= 50 && deltas.tyranny >= 10) {
+        deltas.stability -= 5;
+        enlightenmentNote = ' (Enlightenment anger amplified public backlash by -5 Stability!)';
+      }
+
+      // Subtle ongoing drag if a pillar was already neglected (< 35) before this turn
+      if (gameState.stats.treasury < 35 && deltas.treasury <= 0) deltas.treasury -= 2;
+      if (gameState.stats.stability < 35 && deltas.stability <= 0) deltas.stability -= 2;
+
+      gameState.stats.treasury = clampStat(gameState.stats.treasury + deltas.treasury);
+      gameState.stats.stability = clampStat(gameState.stats.stability + deltas.stability);
+      gameState.stats.legitimacy = clampStat(gameState.stats.legitimacy + deltas.legitimacy);
+      gameState.stats.tyranny = clampStat(gameState.stats.tyranny + (deltas.tyranny || 0));
+
+      // Evaluate Stricter 5-Crown Control Loss Rules (< 30 Danger Threshold)
+      let crownsLost = 0;
+      const lossReasons = [];
+      const pillarNames = {
+        treasury: 'Treasury (Bankruptcy Crisis)',
+        stability: 'Stability (Civil Unrest)',
+        legitimacy: 'Divine Legitimacy (Authority Crisis)'
+      };
+
+      const zeroPillars = [];
+      ['treasury', 'stability', 'legitimacy'].forEach((key) => {
+        if (gameState.stats[key] === 0) {
+          zeroPillars.push(key);
+          crownsLost += 2;
+          lossReasons.push(`Total collapse of ${pillarNames[key]} (hit 0: -2 Crowns; emergency recovery set to 15).`);
+          gameState.stats[key] = 15;
+        }
+      });
+
+      const criticalLow = ['treasury', 'stability', 'legitimacy'].filter(
+        (key) => !zeroPillars.includes(key) && gameState.stats[key] < 30
+      );
+      if (criticalLow.length > 0) {
+        crownsLost += 1;
+        lossReasons.push(`${criticalLow.map((k) => pillarNames[k]).join(' & ')} dropped below 30 (-1 Crown).`);
+      }
+
+      const fragileCount = ['treasury', 'stability', 'legitimacy'].filter((key) => gameState.stats[key] < 35).length;
+      if (fragileCount >= 2) {
+        crownsLost += 1;
+        lossReasons.push(`State paralysis (${fragileCount} pillars simultaneously below 35: -1 Crown).`);
+      }
+
+      const actualLost = Math.min(gameState.crowns, crownsLost);
+      gameState.crowns = Math.max(0, gameState.crowns - crownsLost);
+
+      // Record decision for Historical Debrief
+      gameState.decisionHistory.push({
+        turn: gameState.turn,
+        title: card.title,
+        choiceLabel: choice.label,
+        crownsLost: actualLost
+      });
+
+      if (actualLost > 0) playSoundEffect('crownLoss');
+      else playSoundEffect('choice');
+
+      renderCrownsUI(actualLost);
+      updateMetersUI();
+
+      // Render Outcome Panel
+      document.getElementById('choicesContainer').classList.add('hidden');
+      document.getElementById('outcomeContainer').classList.remove('hidden');
+      document.getElementById('outcomeTurnTag').textContent = `Turn ${gameState.turn} of ${gameState.maxTurns}`;
+
+      const lossAlert = document.getElementById('crownLossAlert');
+      if (actualLost > 0) {
+        lossAlert.classList.remove('hidden');
+        document.getElementById('crownLossTitle').textContent =
+          `ROYAL CONTROL FRACTURED! -${actualLost} CROWN${actualLost > 1 ? 'S' : ''}`;
+        document.getElementById('crownLossReason').textContent = lossReasons.join(' ');
+      } else {
+        lossAlert.classList.add('hidden');
+      }
+
+      const formatDelta = (label, val) => {
+        const sign = val > 0 ? `+${val}` : `${val}`;
+        const color = val > 0 ? 'text-emerald-300 border-emerald-500/40 bg-emerald-950/60'
+          : (val < 0 ? 'text-rose-300 border-rose-500/40 bg-rose-950/60' : 'text-slate-300 border-slate-600 bg-slate-900');
+        return `
+          <div class="rounded-lg border p-2 ${color}">
+            <div class="text-[10px] uppercase tracking-wider opacity-85">${label}</div>
+            <div class="font-display font-extrabold text-base">${sign}</div>
+          </div>
+        `;
+      };
+
+      document.getElementById('outcomeDeltas').innerHTML =
+        formatDelta('Treasury', deltas.treasury) +
+        formatDelta('Stability', deltas.stability) +
+        formatDelta('Legitimacy', deltas.legitimacy);
+
+      document.getElementById('outcomeExplanation').innerHTML = glossText(choice.explanation + enlightenmentNote);
+
+      const btnNext = document.getElementById('btnNextTurn');
+      if (gameState.crowns <= 0) {
+        gameState.isGameOver = true;
+        gameState.didWin = false;
+        gameState.defeatReason = lossReasons.join(' ');
+        gameState.campaign[gameState.monarch.id] = gameState.campaign[gameState.monarch.id] === 'won' ? 'won' : 'failed';
+        btnNext.textContent = 'Witness the Fall of Your Dynasty →';
+      } else if (gameState.turn >= gameState.maxTurns) {
+        gameState.isGameOver = true;
+        // Challenging Victory Check: Must finish with >= 3 Crowns AND all three meters >= 35
+        const weakFinalPillars = ['treasury', 'stability', 'legitimacy'].filter((k) => gameState.stats[k] < 35);
+        if (gameState.crowns >= 3 && weakFinalPillars.length === 0) {
+          gameState.didWin = true;
+          gameState.campaign[gameState.monarch.id] = 'won';
+          btnNext.textContent = 'Proclaim Reign Victory & Check Campaign →';
+        } else {
+          gameState.didWin = false;
+          gameState.campaign[gameState.monarch.id] = gameState.campaign[gameState.monarch.id] === 'won' ? 'won' : 'failed';
+          if (gameState.crowns < 3) {
+            gameState.defeatReason = `You reached Turn 12 with only ${gameState.crowns} of 5 Crowns remaining (at least 3 Crowns are required to hold absolute power).`;
+          } else {
+            const names = weakFinalPillars.map((k) => pillarNames[k]).join(' and ');
+            gameState.defeatReason = `Although you held ${gameState.crowns} Crowns, your ${names} finished below 35—leaving your kingdom too weak to survive.`;
+          }
+          btnNext.textContent = 'See Final Reign Judgment →';
+        }
+      } else {
+        btnNext.textContent = `Proceed to Turn ${gameState.turn + 1} of ${gameState.maxTurns} →`;
+      }
+    }
+
+    function advanceTurn() {
+      if (gameState.isGameOver) {
+        renderEndScreen();
+        return;
+      }
+      gameState.turn += 1;
+      updateMetersUI();
+      renderCurrentDilemma();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function getFormattedTodayDate() {
+      return new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    /* Render End Screen (Reign Result + 4-Monarch Campaign Status + Royal Decree PDF) */
+    function renderEndScreen() {
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('endScreen').classList.remove('hidden');
+
+      const fullName = `${gameState.studentFirstName} ${gameState.studentLastName}`;
+      const todayStr = getFormattedTodayDate();
+      const { playedCount, wonCount, wonIds, decreeUnlocked } = getCampaignStats();
+
+      document.getElementById('endStatCrowns').textContent = `${gameState.crowns} / 5`;
+      document.getElementById('endStatTreasury').textContent = gameState.stats.treasury;
+      document.getElementById('endStatStability').textContent = gameState.stats.stability;
+      document.getElementById('endStatLegitimacy').textContent = gameState.stats.legitimacy;
+
+      const badge = document.getElementById('endBadge');
+      const title = document.getElementById('endTitle');
+      const subtitle = document.getElementById('endSubtitle');
+      const btnPdf = document.getElementById('btnDownloadDecree');
+      const btnContinue = document.getElementById('btnContinueCampaign');
+      const previewWrap = document.getElementById('decreePreviewWrapper');
+
+      renderCampaignTracker('endCampaignGrid');
+      const endCounter = document.getElementById('endCampaignCounter');
+      if (endCounter) {
+        endCounter.textContent = `${playedCount} of 4 Played • ${wonCount} Won (Need All 4 Played & ≥ 3 Won)`;
+      }
+
+      if (gameState.didWin) {
+        playSoundEffect('victory');
+        badge.textContent = `👑 Reign Conquered as ${gameState.monarch.name} (${wonCount}/4 Won)`;
+        badge.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-3 bg-amber-500/20 text-amber-300 border border-amber-400/50';
+        title.textContent = `Victory in ${gameState.monarch.realm}!`;
+        title.className = 'font-display text-3xl sm:text-5xl font-black tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-300';
+
+        if (decreeUnlocked) {
+          subtitle.innerHTML = `Outstanding, <strong class="text-amber-300">${escapeHTML(fullName)}</strong>! You have ruled all four monarchs and won <strong class="text-emerald-300">${wonCount} of 4</strong> kingdoms. Your official <strong>Royal Decree PDF</strong> is unlocked below!`;
+        } else {
+          const remainingPlay = 4 - playedCount;
+          subtitle.innerHTML = `Well ruled, <strong class="text-amber-300">${escapeHTML(fullName)}</strong>! You balanced <strong class="text-white">${escapeHTML(gameState.monarch.name)}</strong>'s kingdom. Now play the remaining <strong class="text-amber-300">${remainingPlay} monarch(s)</strong> (and reach at least 3/4 wins) to unlock your official Royal Decree PDF!`;
+        }
+      } else {
+        playSoundEffect('defeat');
+        badge.textContent = `💔 Reign Failed as ${gameState.monarch.name} (${wonCount}/4 Won)`;
+        badge.className = 'inline-flex items-center gap-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-3 bg-red-950 text-red-300 border border-red-500/60';
+        title.textContent = `Your Rule Ended on Turn ${gameState.turn}`;
+        title.className = 'font-display text-3xl sm:text-5xl font-black tracking-wide text-red-400';
+        subtitle.innerHTML = `Ruling as <strong class="text-amber-300">${escapeHTML(gameState.monarch.name)}</strong>, <strong class="text-white">${escapeHTML(fullName)}</strong> could not maintain royal control. ${escapeHTML(gameState.defeatReason)}`;
+      }
+
+      if (decreeUnlocked) {
+        const wonNames = wonIds
+          .map((id) => MONARCHS.find((m) => m.id === id)?.name)
+          .filter(Boolean)
+          .join(', ');
+        btnPdf.classList.remove('hidden');
+        previewWrap.classList.remove('hidden');
+        if (btnContinue) btnContinue.textContent = 'Return to Sovereign Selection →';
+
+        document.getElementById('decreeStudentName').textContent = fullName;
+        document.getElementById('decreeMonarchTitle').textContent = `Master Sovereign of ${wonNames} (${wonCount}/4 Kingdoms)`;
+        document.getElementById('decreeDateText').textContent = todayStr;
+        document.getElementById('decreeAttestationText').textContent = `${wonCount} of 4 European Monarchs Conquered`;
+      } else {
+        btnPdf.classList.add('hidden');
+        previewWrap.classList.add('hidden');
+        if (btnContinue) btnContinue.textContent = 'Choose Next Monarch to Continue Campaign →';
+      }
+
+      // Populate Historical Debrief Comparison & Decision Log
+      document.getElementById('debriefMonarchComparison').innerHTML = `
+        <p>${glossText(gameState.monarch.realHistoryDebrief)}</p>
+        <p class="text-sm text-amber-300/90 font-sans">
+          <strong>Final Tyranny Index:</strong> ${gameState.stats.tyranny}% — Compare whether your reign leaned toward balanced statecraft, enlightened reform, or harsh autocracy.
+        </p>
+      `;
+
+      document.getElementById('debriefDecisionLog').innerHTML = gameState.decisionHistory.map((item) => `
+        <div class="p-2.5 rounded-lg bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2">
+          <div>
+            <span class="font-display font-bold text-amber-300">Turn ${item.turn}:</span>
+            <span class="text-slate-300">${escapeHTML(item.title)}</span>
+            <div class="text-slate-400 mt-0.5">→ ${escapeHTML(item.choiceLabel)}</div>
+          </div>
+          ${item.crownsLost > 0
+            ? `<span class="shrink-0 px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/50 font-bold">-${item.crownsLost} Crown</span>`
+            : `<span class="shrink-0 px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-500/30">Held</span>`}
+        </div>
+      `).join('');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Generate & Download Official Royal Decree PDF via jsPDF */
+    function downloadRoyalDecreePDF() {
+      try {
+        const { wonCount, wonIds, decreeUnlocked } = getCampaignStats();
+        if (!decreeUnlocked || !window.jspdf || !window.jspdf.jsPDF) {
+          return;
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'letter' });
+        const w = doc.internal.pageSize.getWidth();
+        const h = doc.internal.pageSize.getHeight();
+
+        // Rich Parchment Background
+        doc.setFillColor(253, 246, 227);
+        doc.rect(0, 0, w, h, 'F');
+
+        // Ornate Double Crimson & Gold Borders
+        doc.setDrawColor(127, 29, 29);
+        doc.setLineWidth(4);
+        doc.rect(24, 24, w - 48, h - 48);
+
+        doc.setDrawColor(180, 125, 24);
+        doc.setLineWidth(2);
+        doc.rect(34, 34, w - 68, h - 68);
+
+        // Vector Royal Crown
+        const cx = w / 2;
+        const cy = 74;
+        doc.setFillColor(212, 175, 55);
+        doc.setDrawColor(120, 53, 15);
+        doc.setLineWidth(1.5);
+        doc.triangle(cx - 34, cy + 26, cx - 28, cy, cx - 12, cy + 14, 'FD');
+        doc.triangle(cx - 16, cy + 26, cx, cy - 6, cx + 16, cy + 26, 'FD');
+        doc.triangle(cx + 12, cy + 14, cx + 28, cy, cx + 34, cy + 26, 'FD');
+        doc.rect(cx - 34, cy + 27, 68, 7, 'FD');
+
+        // Royal Decree Header
+        doc.setFont('times', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(127, 29, 29);
+        doc.text('BY THE GRACE OF GOD  •  ROYAL DECREE OF THE SOVEREIGN', w / 2, 134, { align: 'center' });
+
+        doc.setDrawColor(180, 125, 24);
+        doc.setLineWidth(1.5);
+        doc.line(180, 146, w - 180, 146);
+
+        // Student Full Name
+        doc.setFont('times', 'italic');
+        doc.setFontSize(15);
+        doc.setTextColor(68, 64, 60);
+        doc.text('Be it known across all provinces, royal courts, and dominions that', w / 2, 176, { align: 'center' });
+
+        const fullName = `${gameState.studentFirstName} ${gameState.studentLastName}`;
+        doc.setFont('times', 'bold');
+        doc.setFontSize(32);
+        doc.setTextColor(127, 29, 29);
+        doc.text(fullName, w / 2, 216, { align: 'center' });
+
+        // Conquered Monarchs' Names
+        const wonNames = wonIds
+          .map((id) => MONARCHS.find((m) => m.id === id)?.name)
+          .filter(Boolean)
+          .join(', ');
+
+        doc.setFont('times', 'italic');
+        doc.setFontSize(14);
+        doc.setTextColor(68, 64, 60);
+        doc.text('ruling in the imperial majesty and sovereign authority of', w / 2, 244, { align: 'center' });
+
+        doc.setFont('times', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(146, 64, 14);
+        doc.text(`${wonNames} (${wonCount} of 4 European Monarchs Conquered)`, w / 2, 272, { align: 'center' });
+
+        // Proper English Royal Proclamation Box
+        doc.setFillColor(246, 231, 193);
+        doc.setDrawColor(180, 125, 24);
+        doc.setLineWidth(1.2);
+        doc.roundedRect(95, 294, w - 190, 96, 8, 8, 'FD');
+
+        doc.setFont('times', 'bolditalic');
+        doc.setFontSize(17);
+        doc.setTextColor(28, 25, 23);
+        const messageLines = doc.splitTextToSize(
+          '“Congratulations, O King! You have successfully balanced your kingdoms and held power. May you rule for a thousand generations!”',
+          w - 230
+        );
+        doc.text(messageLines, w / 2, 332, { align: 'center' });
+
+        // Realm Attestation Line
+        doc.setFont('times', 'normal');
+        doc.setFontSize(12);
+        doc.setTextColor(68, 64, 60);
+        doc.text(
+          `Campaign Mastery: ${wonCount} of 4 Monarchs Won  |  Latest Reign Crowns: ${gameState.crowns}/5  |  Treasury: ${gameState.stats.treasury}  |  Stability: ${gameState.stats.stability}  |  Legitimacy: ${gameState.stats.legitimacy}`,
+          w / 2,
+          416,
+          { align: 'center' }
+        );
+
+        // Date, Wax Seal & Chancellery Signature
+        const dateStr = getFormattedTodayDate();
+        doc.setFont('times', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(127, 29, 29);
+        doc.text('DATE OF PROCLAMATION', 145, 476, { align: 'center' });
+        doc.setFont('times', 'normal');
+        doc.setFontSize(13);
+        doc.setTextColor(28, 25, 23);
+        doc.text(dateStr, 145, 496, { align: 'center' });
+
+        // Crimson & Gold Royal Wax Seal
+        doc.setFillColor(153, 27, 27);
+        doc.setDrawColor(212, 175, 55);
+        doc.setLineWidth(2.5);
+        doc.circle(w / 2, 486, 34, 'FD');
+        doc.setLineWidth(1);
+        doc.circle(w / 2, 486, 27, 'S');
+        doc.setFont('times', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(254, 240, 138);
+        doc.text('CROWN', w / 2, 482, { align: 'center' });
+        doc.text('& CRISIS', w / 2, 493, { align: 'center' });
+
+        doc.setDrawColor(120, 53, 15);
+        doc.setLineWidth(1);
+        doc.line(w - 235, 484, w - 65, 484);
+        doc.setFont('times', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(127, 29, 29);
+        doc.text('THE ROYAL CHANCELLERY', w - 150, 500, { align: 'center' });
+        doc.setFont('times', 'italic');
+        doc.setFontSize(10);
+        doc.setTextColor(87, 83, 78);
+        doc.text('World History Absolutism Simulation', w - 150, 514, { align: 'center' });
+
+        const safeLast = gameState.studentLastName.replace(/[^a-zA-Z0-9_-]/g, '_') || 'Sovereign';
+        doc.save(`Royal_Decree_${safeLast}.pdf`);
+      } catch (err) {
+        // Fallback if browser blocks automated file save
+      }
+    }
+
+    function resetGameToSetup() {
+      document.getElementById('endScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('setupScreen').classList.remove('hidden');
+      renderMonarchSelection();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleRulesModal(show) {
+      const modal = document.getElementById('rulesModal');
+      if (!modal) return;
+      if (show) modal.classList.remove('hidden');
+      else modal.classList.add('hidden');
+    }
+
+    function initAmbientParticles() {
+      const container = document.getElementById('particleContainer');
+      if (!container) return;
+      for (let i = 0; i < 18; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'particle';
+        dot.style.left = `${Math.random() * 100}%`;
+        dot.style.animationDuration = `${12 + Math.random() * 16}s`;
+        dot.style.animationDelay = `${-Math.random() * 18}s`;
+        container.appendChild(dot);
+      }
+    }
+
+    window.onload = function () {
+      initAmbientParticles();
+      initAcademy();
+      renderMonarchSelection();
+    };
+  </script>
+</body>
+</html>
